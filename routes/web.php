@@ -27,7 +27,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/devotee/register', [App\Http\Controllers\DevoteeAuthController::class, 'register'])->name('devotee.register.submit');
     //devotee dashboard
     Route::get('/devotee/devotee_dashboard',[App\Http\Controllers\DevoteeAuthController::class, 'dashboard'])->name('devotee.dashboard');
-
+    //devotee profile
+    Route::get('/devotee/devotee_profile',[App\Http\Controllers\DevoteeAuthController::class,'devotee_profile'])->name('devotee.profile');
+    //devotee bookings
+    Route::get('/devotee/devotee_bookings',[App\Http\Controllers\DevoteeAuthController::class,'devotee_bookings'])->name('devotee.bookings');
+    //devotee donations
+    Route::get('\devotee\devotee_donations',[App\Http\Controllers\DevoteeAuthController::class,'devotee_donations'])->name('devotee.donations');
+    //devotee logout
+    Route::get('\devotee\devotee_logout',[App\Http\Controllers\DevoteeAuthController::class,'devotee.logout'])->name('devotee.logout');
 });
 
 require __DIR__.'/auth.php';
