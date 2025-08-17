@@ -71,7 +71,7 @@
       <i class="fas fa-calendar-plus"></i>
       <h3>Upcoming Events</h3>
     </a>
-    <a href="my-bookings.html" class="card">
+    <a href="{{route('devotee.bookings')}}" class="card">
       <i class="fas fa-list"></i>
       <h3>My Bookings</h3>
     </a>
@@ -79,15 +79,15 @@
       <i class="fas fa-bell"></i>
       <h3>Notifications</h3>
     </a>
-    <a href="profile.html" class="card">
+    <a href="{{route('devotee.profile')}}" class="card">
       <i class="fas fa-user-circle"></i>
       <h3>My Profile</h3>
     </a>
-    <a href="donations.html" class="card">
+    <a href="{{route('devotee.donations')}}" class="card">
       <i class="fas fa-hand-holding-heart"></i>
       <h3>Donations</h3>
     </a>
-    <a href="logout.html" class="card">
+    <a href="{{route('devotee.logout')}}" class="card">
       <i class="fas fa-sign-out-alt"></i>
       <h3>Logout</h3>
     </a>

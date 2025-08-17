@@ -84,7 +84,19 @@ class DevoteeAuthController extends Controller
     }
 
     //devotee profile
-    public function profile(){
-        return view(route('devotee.profile'));
+    public function devotee_profile(){
+        return view('devotee.devotee_profile');
+    }
+    //devotee bookings
+    public function devotee_bookings(){
+        return view('devotee/devotee_bookings');
+    }
+    //devotee donations
+    public function devotee_donations(){
+        return view('devotee.devotee_donations');
+    }
+    //devotee logout
+    public function devotee_logout(){
+        return view('devotee.devotee_logout');
     }
 }
