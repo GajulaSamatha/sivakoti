@@ -38,4 +38,12 @@ Route::middleware(['auth'])->group(function () {
     
 });
 
+// Superadmin routes
+Route::middleware(['auth', 'role:superadmin'])->group(function () {
+    Route::get('/superadmin/dashboard', [App\Http\Controllers\Superadmin\superadmin_DashboardController::class, 'index'])->name('superadmin.dashboard');
+     // Category routes
+    Route::get('/superadmin/categories', [App\Http\Controllers\Superadmin\CategoryController::class, 'index'])->name('superadmin.categories.index');
+    Route::get('/superadmin/categories/create', [App\Http\Controllers\Superadmin\CategoryController::class, 'create'])->name('superadmin.categories.create');
+});
+
 require __DIR__.'/auth.php';
