@@ -63,6 +63,36 @@ class CategoryController extends Controller
         return view('superadmin.categories.superadmin_categories_view', compact('category', 'children'));
     }
 
-// ...
-    // We'll add store, edit, update, and destroy methods later
+    public function edit(Category $category)
+    {
+        $categories = Category::orderBy('order')->get();
+        return view('superadmin.categories.superadmin_categories_edit', compact('category', 'categories'));
+    }
+
+    public function update(Request $request, Category $category)
+    {
+        $request->validate([
+            'title' => 'required|max:255',
+            'parent_id' => 'nullable|exists:categories,id',
+            'order' => 'nullable|integer',
+        ]);
+
+        $category->update($request->all());
+
+        return redirect()->route('superadmin.categories.index')->with('success', 'Category updated successfully.');
+    }
+
+public function destroy(Category $category)
+{
+    // Prevent deletion if the category has children
+    if ($category->children()->count() > 0) {
+        return redirect()->back()->with('error', 'Cannot delete a category that has sub-categories. Please delete the sub-categories first.');
+    }
+
+    $category->delete();
+
+    return redirect()->route('superadmin.categories.index')->with('success', 'Category deleted successfully.');
+}
+
+    
 }

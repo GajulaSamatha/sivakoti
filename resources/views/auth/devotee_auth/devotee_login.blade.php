@@ -125,6 +125,9 @@
             @enderror
         </div>
         <button type="submit" class="btn-login">Login</button>
+        <a href="{{ route('google.login') }}">
+            <button type="button">Login with Google</button>
+        </a>
         <div class="forgot">
           <a href="register" style="float:left">New User?</a>
             <a href="#">Forgot Password?</a>

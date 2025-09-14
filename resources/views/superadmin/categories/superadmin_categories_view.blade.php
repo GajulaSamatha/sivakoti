@@ -8,6 +8,25 @@
             <h2>Sub-categories of {{ $category->title }}</h2>
             <a href="{{ route('superadmin.categories.create', ['parent_id' => $category->id]) }}" class="btn btn-primary">Add New Sub-category</a>
         </div>
+        
+        {{-- This section displays success or error messages --}}
+        @if(session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+        @if(session('error'))
+            <div class="alert alert-danger">{{ session('error') }}</div>
+        @endif
+
+        {{-- Add the back link here --}}
+        @if ($category->parent_id)
+            <a href="{{ route('superadmin.categories.view', $category->parent_id) }}" class="btn btn-secondary mb-3">
+                <i class="fas fa-arrow-left"></i> Back to {{ $category->parent->title }}
+            </a>
+        @else
+            <a href="{{ route('superadmin.categories.index') }}" class="btn btn-secondary mb-3">
+                <i class="fas fa-arrow-left"></i> Back to Main Categories
+            </a>
+        @endif
 
         <table class="table table-bordered">
             <thead>
@@ -33,8 +52,12 @@
                         <td>{{ $child->parent->title ?? 'None' }}</td>
                         <td>{{ $child->order }}</td>
                         <td>
-                            <a href="#" class="btn btn-sm btn-warning">Edit</a>
-                            <a href="#" class="btn btn-sm btn-danger">Delete</a>
+                            <a href="{{ route('superadmin.categories.edit', $child) }}" class="btn btn-sm btn-warning">Edit</a>
+                            <form action="{{ route('superadmin.categories.destroy', $child) }}" method="POST" style="display:inline-block;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this category?');">Delete</button>
+                            </form>
                         </td>
                     </tr>
                 @endforeach

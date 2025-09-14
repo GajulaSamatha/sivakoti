@@ -9,6 +9,14 @@
             <a href="{{ route('superadmin.categories.create') }}" class="btn btn-primary">Add New Category</a>
         </div>
 
+        {{-- This section displays success or error messages --}}
+        @if(session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+        @if(session('error'))
+            <div class="alert alert-danger">{{ session('error') }}</div>
+        @endif
+
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -33,8 +41,12 @@
                         <td>{{ $category->parent_id ? $category->parent->title : 'None' }}</td>
                         <td>{{ $category->order }}</td>
                         <td>
-                            <a href="#" class="btn btn-sm btn-warning">Edit</a>
-                            <a href="#" class="btn btn-sm btn-danger">Delete</a>
+                            <a href="{{ route('superadmin.categories.edit', $category) }}" class="btn btn-sm btn-warning">Edit</a>
+                            <form action="{{ route('superadmin.categories.destroy', $category) }}" method="POST" style="display:inline-block;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this category?');">Delete</button>
+                            </form>
                         </td>
                     </tr>
                 @endforeach
