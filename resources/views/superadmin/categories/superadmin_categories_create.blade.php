@@ -5,7 +5,7 @@
 @section('content')
     <div class="container mt-4">
         <h2>Create New Category</h2>
-        <form action="#" method="POST">
+        <form action="{{ route('superadmin.categories.store') }}" method="POST">
             @csrf
             <div class="mb-3">
                 <label for="title" class="form-label">Category Title</label>
@@ -24,7 +24,7 @@
                     @endforeach
                 </select>
             </div>
-            <button type="submit" class="btn btn-success">Create</button>
+            <button style="background-color:#8b0000;color:white" type="submit" class="btn">Create</button>
         </form>
     </div>
 @endsection

@@ -41,9 +41,19 @@ Route::middleware(['auth'])->group(function () {
 // Superadmin routes
 Route::middleware(['auth', 'role:superadmin'])->group(function () {
     Route::get('/superadmin/dashboard', [App\Http\Controllers\Superadmin\superadmin_DashboardController::class, 'index'])->name('superadmin.dashboard');
-     // Category routes
+
+    // Category routes
     Route::get('/superadmin/categories', [App\Http\Controllers\Superadmin\CategoryController::class, 'index'])->name('superadmin.categories.index');
     Route::get('/superadmin/categories/create', [App\Http\Controllers\Superadmin\CategoryController::class, 'create'])->name('superadmin.categories.create');
+
+    // The new route for form submission
+    Route::post('/superadmin/categories', [App\Http\Controllers\Superadmin\CategoryController::class, 'store'])->name('superadmin.categories.store');
 });
+
+// Category routes
+Route::get('/superadmin/categories', [App\Http\Controllers\Superadmin\CategoryController::class, 'index'])->name('superadmin.categories.index');
+Route::get('/superadmin/categories/create', [App\Http\Controllers\Superadmin\CategoryController::class, 'create'])->name('superadmin.categories.create');
+Route::post('/superadmin/categories', [App\Http\Controllers\Superadmin\CategoryController::class, 'store'])->name('superadmin.categories.store');
+Route::get('/superadmin/categories/{category}', [App\Http\Controllers\Superadmin\CategoryController::class, 'show'])->name('superadmin.categories.view');
 
 require __DIR__.'/auth.php';

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Superadmin Dashboard - Sivakoti</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <style>
         :root {
@@ -118,9 +119,16 @@
         <h2>Sivakoti Admin</h2>
         <ul class="sidebar-menu">
             <li><a href="{{ route('superadmin.dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-            <li><a href="#"><i class="fas fa-sitemap"></i> Manage Categories</a></li>
-            <li><a href="#"><i class="fas fa-calendar-alt"></i> Manage Events</a></li>
-            <li><a href="#"><i class="fas fa-users-cog"></i> Manage Admins</a></li>
+            <li><a href="{{ route('superadmin.categories.index') }}"><i class="fas fa-sitemap"></i> Manage Categories</a></li>
+            <li><a href="#"><i class="fas fa-calendar-alt"></i> Events & Pujas</a></li>
+            <li><a href="#"><i class="fas fa-file-alt"></i> Pages</a></li>
+            <li><a href="#"><i class="fas fa-newspaper"></i> Posts</a></li>
+            <li><a href="#"><i class="fas fa-images"></i> Galleries</a></li>
+            <li><a href="#"><i class="fas fa-external-link-alt"></i> Popups</a></li>
+            <li><a href="#"><i class="fas fa-bars"></i> Menus</a></li>
+            <li><a href="#"><i class="fas fa-users"></i> Users</a></li>
+            <li><a href="#"><i class="fas fa-user-cog"></i> Admins</a></li>
+            <li><a href="#"><i class="fas fa-cogs"></i> Settings</a></li>
             <li><a href="{{ route('devotee.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
     </div>
