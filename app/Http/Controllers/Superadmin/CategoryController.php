@@ -16,12 +16,53 @@ class CategoryController extends Controller
      */
     // ...
 
-    public function index()
-    {
-        $categories = Category::with('children')->whereNull('parent_id')->orderBy('order')->get();
+    // app/Http/Controllers/Superadmin/CategoryController.php
 
-        return view('superadmin.categories.superadmin_categories_index', compact('categories'));
+// app/Http/Controllers/Superadmin/CategoryController.php
+
+// app/Http/Controllers/Superadmin/CategoryController.php
+
+public function index(Request $request)
+{
+    // Fetch all top-level categories to populate the filter dropdown
+    $parentCategories = Category::whereNull('parent_id')->orderBy('order')->get();
+
+    // Start building the query
+    $query = Category::with('parent');
+
+    // --- 1. APPLY SEARCH FILTER (by Title) ---
+    if ($request->filled('search')) {
+        $query->where('title', 'like', '%' . $request->search . '%');
     }
+    
+    // --- 2. APPLY CATEGORY FILTER (THE FINAL FIX) ---
+    $parentId = $request->input('parent_id'); 
+
+    // FIX: Check if parentId is empty string OR null (the default/reset state)
+    if ($parentId === '' || $parentId === null) {
+        // CASE 1: Top-Level Categories Only (Filter for NULL parent_id)
+        $query->whereNull('parent_id');
+    } elseif (is_numeric($parentId)) {
+        // CASE 2: Specific Parent Category (Filter by the actual ID)
+        $query->where('parent_id', $parentId);
+    } 
+    // CASE 3: If $parentId is 'all', we skip this block entirely, showing all categories.
+
+    // --- 3. APPLY SORTING ---
+    $sort = $request->input('sort', 'order_asc'); 
+
+    if ($sort == 'date_asc') {
+        $query->orderBy('created_at', 'asc');
+    } elseif ($sort == 'date_desc') {
+        $query->orderBy('created_at', 'desc');
+    } else {
+        $query->orderBy('order', 'asc');
+    }
+
+    $categories = $query->get();
+
+    return view('superadmin.categories.superadmin_categories_index', compact('categories', 'parentCategories', 'request'));
+}
 
     public function create()
     {
