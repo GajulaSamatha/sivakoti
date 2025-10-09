@@ -11,13 +11,6 @@
 
         {{-- resources/views/superadmin/categories/superadmin_categories_index.blade.php --}}
 
-@if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-@endif
-@if(session('error'))
-    <div class="alert alert-danger">{{ session('error') }}</div>
-@endif
-
 {{-- START OF FILTER/SORT FORM --}}
 <form action="{{ route('superadmin.categories.index') }}" method="GET" class="mb-4">
     <div class="row g-3">
@@ -36,6 +29,15 @@
                 </option>
                 <option value="all" @if($request->parent_id == 'all') selected @endif>
                     All Categories (Including Sub-levels)
+                </option>
+                 {{-- Option for PUBLISHED --}}
+                <option value="published" @if($request->status == 'published') selected @endif>
+                    Published
+                </option>
+                
+                {{-- Option for DRAFT --}}
+                <option value="draft" @if($request->status == 'draft') selected @endif>
+                    Draft
                 </option>
                 @foreach($parentCategories as $parent)
                     <option value="{{ $parent->id }}" @if($request->parent_id == $parent->id) selected @endif>
@@ -77,6 +79,7 @@
                     <th>Title</th>
                     <th>Parent</th>
                     <th>Order</th>
+                    <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -94,6 +97,7 @@
                         </td>
                         <td>{{ $category->parent_id ? $category->parent->title : 'None' }}</td>
                         <td>{{ $category->order }}</td>
+                        <td>{{ $category->status}}</td>
                         <td>
                             <a href="{{ route('superadmin.categories.edit', $category) }}" class="btn btn-sm btn-warning">Edit</a>
                             <form action="{{ route('superadmin.categories.destroy', $category) }}" method="POST" style="display:inline-block;">

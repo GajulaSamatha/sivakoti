@@ -46,6 +46,12 @@ public function index(Request $request)
         // CASE 2: Specific Parent Category (Filter by the actual ID)
         $query->where('parent_id', $parentId);
     } 
+
+    //filtering with draft and published
+    if ($request->filled('status') && $request->status != 'all') {
+        $query->where('status', $request->status);
+    }
+
     // CASE 3: If $parentId is 'all', we skip this block entirely, showing all categories.
 
     // --- 3. APPLY SORTING ---

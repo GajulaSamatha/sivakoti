@@ -11,12 +11,6 @@
         
         {{-- resources/views/superadmin/categories/superadmin_categories_index.blade.php --}}
 
-@if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-@endif
-@if(session('error'))
-    <div class="alert alert-danger">{{ session('error') }}</div>
-@endif
 
 {{-- START OF FILTER/SORT FORM --}}
 <form action="{{ route('superadmin.categories.index') }}" method="GET" class="mb-4">
