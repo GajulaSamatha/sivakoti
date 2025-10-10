@@ -4,10 +4,7 @@
 
 @section('content')
     <div class="container mt-4">
-        <div id="inline_contents">
             <h2>Create New Category</h2>
-            <button class="btn btn_draft btn-success">Draft</button>
-        </div>
         <form action="{{ route('superadmin.categories.store') }}" method="POST">
             @csrf
             <div class="mb-3">
@@ -28,18 +25,7 @@
                 </select>
             </div>
             <button style="background-color:#8b0000;color:white" type="submit" class="btn">Create</button>
+            <button type="submit" class="btn btn_draft btn-success" name="draft" value="draft">Draft</button>
         </form>
     </div>
 @endsection
-@push('styles')
-    <style>
-        #inline_contents{
-            width:100%;
-            display:flex;
-            justify-content:space-between;
-        }
-        .btn_draft{
-            float:right;
-            margin:10px;
-        }
-    </style>

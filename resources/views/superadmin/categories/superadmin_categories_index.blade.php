@@ -30,21 +30,36 @@
                 <option value="all" @if($request->parent_id == 'all') selected @endif>
                     All Categories (Including Sub-levels)
                 </option>
-                 {{-- Option for PUBLISHED --}}
-                <option value="published" @if($request->status == 'published') selected @endif>
-                    Published
-                </option>
-                
-                {{-- Option for DRAFT --}}
-                <option value="draft" @if($request->status == 'draft') selected @endif>
-                    Draft
-                </option>
                 @foreach($parentCategories as $parent)
                     <option value="{{ $parent->id }}" @if($request->parent_id == $parent->id) selected @endif>
                         {{ $parent->title }}
                     </option>
                 @endforeach
             </select>
+        </div>
+
+        {{-- resources/views/superadmin/categories/superadmin_categories_index.blade.php --}}
+
+        <div class="col-md-3">
+            <label class="form-label d-block">Status:</label>
+            <div class="btn-group btn-group-sm" role="group" aria-label="Status filter">
+                
+                {{-- Radio for ALL --}}
+                <input type="radio" class="btn-check" name="status" id="statusAll" value="all" 
+                    @if(!$request->status || $request->status == 'all') checked @endif>
+                <label class="btn btn-outline-secondary" for="statusAll">All</label>
+                
+                {{-- Radio for PUBLISHED --}}
+                <input type="radio" class="btn-check" name="status" id="statusPublished" value="published" 
+                    @if($request->status == 'published') checked @endif>
+                <label class="btn btn-outline-success" for="statusPublished">Published</label>
+
+                {{-- Radio for DRAFT --}}
+                <input type="radio" class="btn-check" name="status" id="statusDraft" value="draft" 
+                    @if($request->status == 'draft') checked @endif>
+                <label class="btn btn-outline-warning" for="statusDraft">Draft</label>
+                
+            </div>
         </div>
 
         {{-- Sort By Dropdown --}}
@@ -104,6 +119,17 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this category?');">Delete</button>
+                            </form>
+                            {{-- Active/Inactive Toggle Button --}}
+                            <form action="{{ route('superadmin.categories.toggle-enabled', $category) }}" method="POST" style="display:inline-block;">
+                                @csrf
+                                
+                                <button type="submit" 
+                                    class="btn btn-sm btn-{{ $category->is_enabled ? 'danger' : 'success' }}" 
+                                    title="{{ $category->is_enabled ? 'Click to Disable' : 'Click to Enable' }}">
+                                    
+                                    {{ $category->is_enabled ? 'Disable' : 'Enable' }}
+                                </button>
                             </form>
                         </td>
                     </tr>

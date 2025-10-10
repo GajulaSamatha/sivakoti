@@ -67,6 +67,7 @@ Route::middleware(['auth', 'role:superadmin'])->group(function () {
     Route::get('/superadmin/categories/{category}/edit', [CategoryController::class, 'edit'])->name('superadmin.categories.edit');
     Route::put('/superadmin/categories/{category}', [CategoryController::class, 'update'])->name('superadmin.categories.update');
     Route::delete('/superadmin/categories/{category}', [CategoryController::class, 'destroy'])->name('superadmin.categories.destroy');
+    Route::post('/superadmin/categories/{category}/toggle-enabled', [CategoryController::class, 'toggleEnabled'])->name('superadmin.categories.toggle-enabled');
 });
 
 require __DIR__.'/auth.php';

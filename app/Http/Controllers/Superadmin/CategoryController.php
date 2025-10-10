@@ -86,8 +86,14 @@ public function index(Request $request)
             'parent_id' => 'nullable|exists:categories,id',
         ]);
 
+
         // Create a unique slug from the title
         $slug = Str::slug($request->title);
+        $status = 'published';
+        //adding draft if draft button clicked
+            if($request->has('draft')){
+                $status = 'draft';
+            }
 
         // Create the new category
         Category::create([
@@ -95,6 +101,7 @@ public function index(Request $request)
             'description' => $request->description,
             'slug' => $slug,
             'parent_id' => $request->parent_id,
+            'status'=>$status
         ]);
 
         return redirect()->route('superadmin.categories.index')->with('success', 'Category created successfully!');
@@ -129,17 +136,27 @@ public function index(Request $request)
         return redirect()->route('superadmin.categories.index')->with('success', 'Category updated successfully.');
     }
 
-public function destroy(Category $category)
-{
-    // Prevent deletion if the category has children
-    if ($category->children()->count() > 0) {
-        return redirect()->back()->with('error', 'Cannot delete a category that has sub-categories. Please delete the sub-categories first.');
+    public function destroy(Category $category)
+    {
+        // Prevent deletion if the category has children
+        if ($category->children()->count() > 0) {
+            return redirect()->back()->with('error', 'Cannot delete a category that has sub-categories. Please delete the sub-categories first.');
+        }
+
+        $category->delete();
+
+        return redirect()->route('superadmin.categories.index')->with('success', 'Category deleted successfully.');
     }
 
-    $category->delete();
+    //toggle enable/disable
+    public function toggleEnabled(Category $category){
+        $category->is_enabled = !$category->is_enabled;
+        $category->save();
 
-    return redirect()->route('superadmin.categories.index')->with('success', 'Category deleted successfully.');
-}
+        // Prepare a dynamic status message
+    $status = $category->is_enabled ? 'Enabled' : 'Disabled';
 
+    return redirect()->back()->with('success', "Category '{$category->title}' has been {$status} successfully.");
+    }
     
 }
