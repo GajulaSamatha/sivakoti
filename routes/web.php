@@ -8,6 +8,7 @@ use App\Http\Controllers\Superadmin\superadmin_DashboardController;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
+use App\Http\Controllers\Superadmin\EventPoojaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -68,6 +69,15 @@ Route::middleware(['auth', 'role:superadmin'])->group(function () {
     Route::put('/superadmin/categories/{category}', [CategoryController::class, 'update'])->name('superadmin.categories.update');
     Route::delete('/superadmin/categories/{category}', [CategoryController::class, 'destroy'])->name('superadmin.categories.destroy');
     Route::post('/superadmin/categories/{category}/toggle-enabled', [CategoryController::class, 'toggleEnabled'])->name('superadmin.categories.toggle-enabled');
+    Route::resource('events-poojas', EventPoojaController::class)->names([
+        'index' => 'superadmin.events_poojas.index',
+    'create' => 'superadmin.events_poojas.create',
+    'store' => 'superadmin.events_poojas.store',
+    'show' => 'superadmin.events_poojas.show',
+    'edit' => 'superadmin.events_poojas.edit',
+    'update' => 'superadmin.events_poojas.update',
+    'destroy' => 'superadmin.events_poojas.destroy',
+    ]);
 });
 
 require __DIR__.'/auth.php';

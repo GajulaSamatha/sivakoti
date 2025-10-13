@@ -123,17 +123,42 @@ public function index(Request $request)
         return view('superadmin.categories.superadmin_categories_edit', compact('category', 'categories'));
     }
 
+// app/Http/Controllers/Superadmin/CategoryController.php
+
     public function update(Request $request, Category $category)
     {
-        $request->validate([
-            'title' => 'required|max:255',
-            'parent_id' => 'nullable|exists:categories,id',
+        // 1. UPDATED VALIDATION RULES
+        $validatedData = $request->validate([
+            'title' => 'required|string|max:255',
+            // New: description is nullable
+            'description' => 'nullable|string', 
+            
+            'parent_id' => [
+                'nullable', 
+                'exists:categories,id', 
+                // Crucial: A category cannot be its own parent.
+                'not_in:' . $category->id
+            ],
             'order' => 'nullable|integer',
+            
+            // New: status must be either draft or published
+            'status' => 'required|in:draft,published', 
+            
+            // New: is_enabled must be 1 or 0 (a boolean value)
+            'is_enabled' => 'required|boolean', 
         ]);
+        
+        // 2. SLUG REGENERATION
+        // Check if the title has been changed
+        if ($request->title != $category->title) {
+            $validatedData['slug'] = Str::slug($request->title);
+        }
+        // Note: If the title is the same, we simply don't overwrite the existing slug.
 
-        $category->update($request->all());
+        // 3. FINAL UPDATE CALL
+        $category->update($validatedData);
 
-        return redirect()->route('superadmin.categories.index')->with('success', 'Category updated successfully.');
+        return redirect()->route('superadmin.categories.index')->with('success', "Category '{$category->title}' updated successfully!");
     }
 
     public function destroy(Category $category)

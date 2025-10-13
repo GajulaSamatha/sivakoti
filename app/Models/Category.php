@@ -33,4 +33,10 @@ class Category extends Model
     {
         return $this->hasMany(Category::class, 'parent_id');
     }
+
+    public function eventPoojas(): HasMany
+    {
+        return $this->hasMany(EventPooja::class);
+    }
+
 }
