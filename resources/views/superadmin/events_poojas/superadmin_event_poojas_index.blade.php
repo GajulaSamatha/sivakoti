@@ -35,6 +35,7 @@
                         <td>{{ $item->start_date->format('M j, Y H:i') }}</td>
                         <td>{{ $item->status }}</td>
                         <td>{{ $item->is_enabled ? 'Yes' : 'No' }}</td>
+                        <td><img src="{{ $item->image }}"></td>
                         <td>
                             {{-- Action buttons will go here (Edit/Delete) --}}
                             <a href="#" class="btn btn-sm btn-warning">Edit</a>

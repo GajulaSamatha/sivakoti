@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\GoogleLoginController;
+use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\DevoteeAuthController;
 use App\Http\Controllers\Superadmin\CategoryController;
 use App\Http\Controllers\Superadmin\superadmin_DashboardController;
@@ -45,8 +45,8 @@ Route::post('/devotee/register', [DevoteeAuthController::class, 'register'])->na
 Route::get('/devotee/devotee_logout', [DevoteeAuthController::class, 'devotee_logout'])->name('devotee.logout');
 
 // Google Login Routes
-Route::get('auth/google', [GoogleLoginController::class, 'redirectToGoogle'])->name('google.login');
-Route::get('auth/google/callback', [GoogleLoginController::class, 'handleGoogleCallback'])->name('google.login.callback');
+Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('google.login.callback');
 
 // Devotee Authenticated Routes
 Route::middleware(['auth:devotee'])->group(function () {
@@ -69,7 +69,7 @@ Route::middleware(['auth', 'role:superadmin'])->group(function () {
     Route::put('/superadmin/categories/{category}', [CategoryController::class, 'update'])->name('superadmin.categories.update');
     Route::delete('/superadmin/categories/{category}', [CategoryController::class, 'destroy'])->name('superadmin.categories.destroy');
     Route::post('/superadmin/categories/{category}/toggle-enabled', [CategoryController::class, 'toggleEnabled'])->name('superadmin.categories.toggle-enabled');
-    Route::resource('events-poojas', EventPoojaController::class)->names([
+    Route::resource('/superadmin/events-poojas', EventPoojaController::class)->names([
         'index' => 'superadmin.events_poojas.index',
     'create' => 'superadmin.events_poojas.create',
     'store' => 'superadmin.events_poojas.store',

@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\EventPooja;
 use Illuminate\Support\Str; // Import the Str facade for slug generation
-use Illuminate\Support\Facades\Storage; // Import the Storage facade for file handling
+use Illuminate\Support\Facades\Storage; // Import the Storage facade for file handling\
+use App\Models\Category;
 
 class EventPoojaController extends Controller
 {
