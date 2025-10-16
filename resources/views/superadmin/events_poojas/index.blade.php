@@ -23,6 +23,7 @@
                     <th>Date & Time</th>
                     <th>Status</th>
                     <th>Enabled</th>
+                    <th>Images</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -37,8 +38,14 @@
                         <td>{{ $item->is_enabled ? 'Yes' : 'No' }}</td>
                         <td><img src="{{ $item->image }}"></td>
                         <td>
-                            {{-- Action buttons will go here (Edit/Delete) --}}
-                            <a href="#" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="{{ route('superadmin.events_poojas.edit', $item->id) }}" class="btn btn-sm btn-info">Edit</a>
+
+                            {{-- DELETE FORM --}}
+                            <form action="{{ route('superadmin.events_poojas.destroy', $item->id) }}" method="POST" style="display:inline-block;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this event?');">Delete</button>
+                            </form>
                         </td>
                     </tr>
                 @endforeach
