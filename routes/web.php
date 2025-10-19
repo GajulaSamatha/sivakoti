@@ -9,7 +9,8 @@ use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
 use App\Http\Controllers\Superadmin\EventPoojaController;
-
+use App\Http\Controllers\Superadmin\ContactController;
+use App\Http\Controllers\Superadmin\PopupController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -78,6 +79,11 @@ Route::middleware(['auth', 'role:superadmin'])->group(function () {
     'update' => 'superadmin.events_poojas.update',
     'destroy' => 'superadmin.events_poojas.destroy',
     ]);
+    Route::resource('contacts', ContactController::class)
+    ->only(['index', 'show', 'destroy'])
+    ->names('superadmin.contacts');
+    Route::resource('popups', PopupController::class)
+    ->names('superadmin.popups');
 });
 
 require __DIR__.'/auth.php';

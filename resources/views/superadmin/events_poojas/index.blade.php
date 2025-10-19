@@ -15,7 +15,7 @@
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
         
-        <table class="table table-bordered">
+        <table class="table table-bordered table-striped">
             <thead>
                 <tr>
                     <th>Title</th>
@@ -23,21 +23,45 @@
                     <th>Date & Time</th>
                     <th>Status</th>
                     <th>Enabled</th>
-                    <th>Images</th>
+                    <th>Image</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($eventsPoojas as $item)
                     <tr>
-                        <td>{{ $item->title }}</td>
-                        {{-- Use the relationship defined in the model --}}
-                        <td>{{ $item->category->title ?? 'Uncategorized' }}</td>
-                        <td>{{ $item->start_date->format('M j, Y H:i') }}</td>
-                        <td>{{ $item->status }}</td>
-                        <td>{{ $item->is_enabled ? 'Yes' : 'No' }}</td>
-                        <td><img src="{{ $item->image }}"></td>
+                        {{-- Link Title to the Show page --}}
                         <td>
+                            <a href="{{ route('superadmin.events_poojas.show', $item->id) }}">
+                                {{ $item->title }}
+                            </a>
+                        </td>
+                        {{-- Relationship: Requires the 'category' relationship in the EventPooja model --}}
+                        <td>{{ $item->category->title ?? 'Uncategorized' }}</td>
+                        {{-- Display Start Date (Carbon instance) --}}
+                        <td>{{ $item->start_date->format('M j, Y H:i') }}</td>
+                        <td>
+                            <span class="badge bg-{{ $item->status == 'published' ? 'success' : 'warning' }}">
+                                {{ ucfirst($item->status) }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ $item->is_enabled ? 'primary' : 'secondary' }}">
+                                {{ $item->is_enabled ? 'Yes' : 'No' }}
+                            </span>
+                        </td>
+                        
+                        {{-- **CORRECTED IMAGE DISPLAY LOGIC** --}}
+                        <td>
+                            @if ($item->image)
+                                <img src="{{ asset($item->image) }}" alt="{{ $item->title }}" style="max-width: 50px; height: auto;">
+                            @else
+                                <small>No Image</small>
+                            @endif
+                        </td>
+                        
+                        <td>
+                            {{-- Edit Link --}}
                             <a href="{{ route('superadmin.events_poojas.edit', $item->id) }}" class="btn btn-sm btn-info">Edit</a>
 
                             {{-- DELETE FORM --}}
@@ -52,7 +76,9 @@
             </tbody>
         </table>
 
-        {{-- This is where pagination will go later if needed --}}
-
+        {{-- PAGINATION LINKS --}}
+        <div class="mt-4">
+            {{ $eventsPoojas->links() }}
+        </div>
     </div>
 @endsection

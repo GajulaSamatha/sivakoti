@@ -16,8 +16,8 @@ class EventPoojaController extends Controller
      */
     public function index()
     {
-         $eventsPoojas = EventPooja::latest()->get();
-
+        $eventsPoojas = EventPooja::latest()->paginate(1); 
+    
         return view('superadmin.events_poojas.index', compact('eventsPoojas'));
     }
 
@@ -72,9 +72,9 @@ class EventPoojaController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(EventPooja $events_pooja)
     {
-        //
+        return view('superadmin.events_poojas.show', compact('events_pooja'));
     }
 
     /**
