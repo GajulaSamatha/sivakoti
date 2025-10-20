@@ -142,7 +142,14 @@
             <li><a href="{{ route('superadmin.popups.index') }}" class="{{ request()->routeIs('superadmin.popups.*') ? 'active' : '' }}"><i class="fas fa-external-link-alt"></i> Popups</a></li>
             
             {{-- USER & ADMIN MANAGEMENT (Temporarily Commented Out) --}}
-            {{-- <li><a href="{{ route('superadmin.users.index') }}" class="{{ request()->routeIs('superadmin.users.*') ? 'active' : '' }}"><i class="fas fa-users"></i> Devotee Users</a></li>
+            <li class="nav-item">
+                <a href="{{ route('superadmin.users.index') }}" 
+                class="nav-link {{ request()->routeIs('superadmin.users.*') ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-users"></i> 
+                    <p>User Management</p>
+                </a>
+            </li>
+            {{--
             <li><a href="{{ route('superadmin.admins.index') }}" class="{{ request()->routeIs('superadmin.admins.*') ? 'active' : '' }}"><i class="fas fa-user-cog"></i> Administrators</a></li>
              --}}
             

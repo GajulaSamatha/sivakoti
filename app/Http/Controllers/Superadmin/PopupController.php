@@ -40,20 +40,27 @@ class PopupController extends Controller
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // 2MB max
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', 
             'category_id' => 'nullable|exists:categories,id',
-            'is_enabled' => 'boolean',
+            // Correct rule for checkbox: accepts 'on', '1', or 'true' if checked, otherwise it's missing (nullable)
+            'is_enabled' => 'nullable|in:on,1,true', 
         ]);
 
-        // Handle Image Upload (Similar to Events)
+        // Handle Image Upload
         if ($request->hasFile('image')) {
             $validatedData['image'] = $request->file('image')->store('uploads/popups', 'public');
         }
-
-        // Set the default values for booleans if not present in request
-        $validatedData['is_enabled'] = $request->has('is_enabled');
         
-        Popup::create($validatedData);
+        // Create the Database Record
+        Popup::create([
+            'title' => $validatedData['title'],
+            'content' => $validatedData['content'] ?? null,
+            // Passes the path if set by upload, otherwise null
+            'image' => $validatedData['image'] ?? null, 
+            'category_id' => $validatedData['category_id'] ?? null,
+            // **ROBUST BOOLEAN**: Directly converts input to true/false (0/1) for database
+            'is_enabled' => $request->boolean('is_enabled'), 
+        ]);
 
         return redirect()->route('superadmin.popups.index')
                          ->with('success', 'Popup created successfully.');
@@ -64,8 +71,7 @@ class PopupController extends Controller
      */
     public function show(Popup $popup)
     {
-        // For popups, show is usually just a detailed view or not used. 
-        // We'll redirect to edit for simplicity, or you can create a show view later.
+        // Typically a simple read-only view, but you might redirect to edit
         return view('superadmin.popups.show', compact('popup'));
     }
 
@@ -89,30 +95,40 @@ class PopupController extends Controller
             'content' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'category_id' => 'nullable|exists:categories,id',
-            'is_enabled' => 'boolean',
+            // Correct rule for checkbox input
+            'is_enabled' => 'nullable|in:on,1,true', 
+            // Optional field from the edit form to remove image
+            'remove_image' => 'nullable|boolean', 
         ]);
         
-        // Handle Image Update and Deletion of Old Image
+        // Handle Image Update
         if ($request->hasFile('image')) {
             // Delete old image if it exists
             if ($popup->image) {
                 Storage::disk('public')->delete($popup->image);
             }
+            // Store new image and set path
             $validatedData['image'] = $request->file('image')->store('uploads/popups', 'public');
-        }
-
-        // Handle case where admin checks the box to remove the image (optional feature)
-        if ($request->input('remove_image')) {
+        } elseif ($request->boolean('remove_image')) {
+            // Handle case where user checks a box to explicitly remove the image
             if ($popup->image) {
                 Storage::disk('public')->delete($popup->image);
             }
             $validatedData['image'] = null;
+        } else {
+            // No new file and no remove request: keep the existing image path
+            $validatedData['image'] = $popup->image;
         }
 
-        // Set the boolean status
-        $validatedData['is_enabled'] = $request->has('is_enabled');
-
-        $popup->update($validatedData);
+        // Update the record
+        $popup->update([
+            'title' => $validatedData['title'],
+            'content' => $validatedData['content'] ?? null,
+            'category_id' => $validatedData['category_id'] ?? null,
+            'image' => $validatedData['image'], 
+            // **ROBUST BOOLEAN**: Direct conversion
+            'is_enabled' => $request->boolean('is_enabled'), 
+        ]);
 
         return redirect()->route('superadmin.popups.index')
                          ->with('success', 'Popup updated successfully.');

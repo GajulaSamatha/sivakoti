@@ -84,6 +84,9 @@ Route::middleware(['auth', 'role:superadmin'])->group(function () {
     ->names('superadmin.contacts');
     Route::resource('popups', PopupController::class)
     ->names('superadmin.popups');
+
+Route::resource('users', App\Http\Controllers\Superadmin\UserController::class)
+    ->names('superadmin.users');
 });
 
 require __DIR__.'/auth.php';

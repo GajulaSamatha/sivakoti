@@ -1,4 +1,8 @@
-// app/Models/Popup.php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model; // <--- ENSURE THIS IS PRESENT
 use App\Models\Category;
 
 class Popup extends Model

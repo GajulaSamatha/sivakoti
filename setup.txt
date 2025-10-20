@@ -1,0 +1,6 @@
+Step,Command,Purpose
+1. Install Dependencies,composer install,Downloads the PHP vendor folder (This will succeed because of your clean clone).
+2. Create .env file,cp .env.example .env,"Creates the required, active environment file."
+3. Configure DB,(Manual Edit),"Open .env and change DB_CONNECTION=sqlite to DB_CONNECTION=mysql, and set the correct DB_PORT (e.g., 3307), DB_DATABASE, and credentials."
+4. Generate App Key,php artisan key:generate,Inserts the unique security key into your .env file.
+5. Run Migrations,php artisan migrate,"Creates the remaining database tables (Pages, Posts, etc.)."

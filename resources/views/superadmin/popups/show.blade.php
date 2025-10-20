@@ -1,4 +1,4 @@
-{{-- resources/views/superadmin/popups/_form.blade.php --}}
+{{-- resources/views/superadmin/popups/form.blade.php --}}
 
 @php
     // Determine if we are creating or editing

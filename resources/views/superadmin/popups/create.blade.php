@@ -1,4 +1,3 @@
-{{-- resources/views/superadmin/popups/create.blade.php --}}
 
 @extends('layouts.superadmin_layouts.superadmin_base') 
 
@@ -12,10 +11,11 @@
                 <form action="{{ route('superadmin.popups.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
-                    @include('superadmin.popups._form', ['buttonText' => 'Create Popup'])
+                    @include('superadmin.popups.form', ['buttonText' => 'Create Popup'])
                     
                 </form>
             </div>
         </div>
     </div>
 @endsection
+
