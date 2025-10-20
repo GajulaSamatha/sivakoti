@@ -49,14 +49,15 @@
         .sidebar-menu li a {
             display: block;
             padding: 15px 20px;
-            color: var(--link-color);
+            color: #fff; /* Ensure white color for contrast */
             text-decoration: none;
             transition: background-color 0.3s;
         }
 
-        .sidebar-menu li a:hover {
+        .sidebar-menu li a:hover,
+        .sidebar-menu li a.active { /* Add active state */
             background-color: white;
-            color:black;
+            color: var(--primary); /* Hover text color */
         }
 
         .sidebar-menu i {
@@ -83,6 +84,7 @@
             gap: 20px;
         }
 
+        /* Card styles are fine, but ensure hover colors are readable */
         .card {
             background-color: #fff;
             border: 2px solid var(--primary);
@@ -118,18 +120,42 @@
     <div class="sidebar">
         <h2>Sivakoti Admin</h2>
         <ul class="sidebar-menu">
-            <li><a href="{{ route('superadmin.dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-            <li><a href="{{ route('superadmin.categories.index') }}"><i class="fas fa-sitemap"></i> Manage Categories</a></li>
-            <li><a href="#"><i class="fas fa-calendar-alt"></i> Events & Pujas</a></li>
-            <li><a href="#"><i class="fas fa-file-alt"></i> Pages</a></li>
-            <li><a href="#"><i class="fas fa-newspaper"></i> Posts</a></li>
-            <li><a href="#"><i class="fas fa-images"></i> Galleries</a></li>
-            <li><a href="#"><i class="fas fa-external-link-alt"></i> Popups</a></li>
-            <li><a href="#"><i class="fas fa-bars"></i> Menus</a></li>
-            <li><a href="#"><i class="fas fa-users"></i> Users</a></li>
-            <li><a href="#"><i class="fas fa-user-cog"></i> Admins</a></li>
-            <li><a href="#"><i class="fas fa-cogs"></i> Settings</a></li>
-            <li><a href="{{ route('devotee.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            {{-- Dashboard --}}
+            <li><a href="{{ route('superadmin.dashboard') }}" class="{{ request()->routeIs('superadmin.dashboard') ? 'active' : '' }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            
+            {{-- 1. CATEGORIES (COMPLETED) --}}
+            <li><a href="{{ route('superadmin.categories.index') }}" class="{{ request()->routeIs('superadmin.categories.*') ? 'active' : '' }}"><i class="fas fa-sitemap"></i> Manage Categories</a></li>
+            
+            {{-- 2. EVENTS & PUJAS (COMPLETED) --}}
+            <li><a href="{{ route('superadmin.events_poojas.index') }}" class="{{ request()->routeIs('superadmin.events_poojas.*') ? 'active' : '' }}"><i class="fas fa-calendar-alt"></i> Events & Pujas</a></li>
+            
+            {{-- 3. CONTACT MESSAGES (NEW SERVICE) --}}
+            <li><a href="{{ route('superadmin.contacts.index') }}" class="{{ request()->routeIs('superadmin.contacts.*') ? 'active' : '' }}"><i class="fas fa-envelope"></i> Contact Messages</a></li>
+
+            {{-- FUTURE TABS (Based on Requirements Document) --}}
+           {{-- FUTURE TABS (Temporarily Commented Out) --}}
+            {{-- <li><a href="{{ route('superadmin.pages.index') }}" class="{{ request()->routeIs('superadmin.pages.*') ? 'active' : '' }}"><i class="fas fa-file-alt"></i> Pages</a></li>
+            <li><a href="{{ route('superadmin.posts.index') }}" class="{{ request()->routeIs('superadmin.posts.*') ? 'active' : '' }}"><i class="fas fa-newspaper"></i> Posts</a></li>
+            <li><a href="{{ route('superadmin.galleries.index') }}" class="{{ request()->routeIs('superadmin.galleries.*') ? 'active' : '' }}"><i class="fas fa-images"></i> Galleries</a></li>
+            <li><a href="{{ route('superadmin.menus.index') }}" class="{{ request()->routeIs('superadmin.menus.*') ? 'active' : '' }}"><i class="fas fa-bars"></i> Menus</a></li>
+             --}}
+            <li><a href="{{ route('superadmin.popups.index') }}" class="{{ request()->routeIs('superadmin.popups.*') ? 'active' : '' }}"><i class="fas fa-external-link-alt"></i> Popups</a></li>
+            
+            {{-- USER & ADMIN MANAGEMENT (Temporarily Commented Out) --}}
+            {{-- <li><a href="{{ route('superadmin.users.index') }}" class="{{ request()->routeIs('superadmin.users.*') ? 'active' : '' }}"><i class="fas fa-users"></i> Devotee Users</a></li>
+            <li><a href="{{ route('superadmin.admins.index') }}" class="{{ request()->routeIs('superadmin.admins.*') ? 'active' : '' }}"><i class="fas fa-user-cog"></i> Administrators</a></li>
+             --}}
+            
+            {{-- SETTINGS & LOGOUT (Temporarily Commented Out) --}}
+            {{-- <li><a href="{{ route('superadmin.settings.index') }}" class="{{ request()->routeIs('superadmin.settings.*') ? 'active' : '' }}"><i class="fas fa-cogs"></i> Settings</a></li> --}}
+            
+            {{-- LOGOUT (This is usually defined and is safe to leave active) --}}
+            <li>
+                {{--<form method="POST" action="{{ route('superadmin.logout') }}">
+                    @csrf
+                    <button type="submit" class="btn btn-block text-start w-100" style="background: none; color: #fff; padding: 15px 20px;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </form>--}}
+            </li>
         </ul>
     </div>
 
@@ -137,8 +163,11 @@
         <div class="header">
             <h1>@yield('page_title')</h1>
         </div>
+        {{-- This is where the content from other views is injected --}}
         @yield('content')
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    @stack('scripts')
 </body>
 </html>
