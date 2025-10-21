@@ -35,27 +35,35 @@ class UserController extends Controller
     /**
      * Store a newly created user.
      */
-    public function store(Request $request)
-    {
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed', // 'confirmed' checks for password_confirmation
-            'roles' => 'required|array',
-            'roles.*' => 'exists:roles,id',
-        ]);
+public function store(Request $request)
+{
+    $validatedData = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users',
+        'password' => 'required|string|confirmed|min:8',
+        'roles' => 'required|array', // e.g., ['1']
+        'roles.*' => 'exists:roles,id', // Ensure the IDs exist in the roles table
+    ]);
 
-        $user = User::create([
-            'name' => $validatedData['name'],
-            'email' => $validatedData['email'],
-            'password' => Hash::make($validatedData['password']),
-        ]);
+    // 1. Create the user
+    $user = User::create([
+        'name' => $validatedData['name'],
+        'email' => $validatedData['email'],
+        'password' => Hash::make($validatedData['password']),
+    ]);
 
-        $user->syncRoles($validatedData['roles']);
+    // 2. Retrieve Role NAMES based on the submitted Role IDs
+    // The Spatie 'syncRoles' method requires role names or role objects.
+    $roleIds = $validatedData['roles'];
+    
+    // Convert IDs to Role Names (strings)
+    $roleNames = Role::whereIn('id', $roleIds)->pluck('name')->toArray();
 
-        return redirect()->route('superadmin.users.index')
-                         ->with('success', 'User created successfully.');
-    }
+    // 3. Sync roles using the retrieved NAMES (strings)
+    $user->syncRoles($roleNames);
+
+    return redirect()->route('superadmin.users.index')->with('success', 'User created successfully.');
+}
 
     /**
      * Show the form for editing the specified user.

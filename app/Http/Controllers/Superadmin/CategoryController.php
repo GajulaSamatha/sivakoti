@@ -108,14 +108,42 @@ public function index(Request $request)
     }
     
     //seperate for each category and its children
-    public function show(Category $category)
-    {
-        // This line fetches all child categories for the given parent category
-        $children = $category->children()->orderBy('order')->get();
+    // app/Http/Controllers/Superadmin/CategoryController.php
 
-        // The 'compact()' function now has access to both 'category' and 'children'
-        return view('superadmin.categories.superadmin_categories_view', compact('category', 'children'));
+// 💡 CHANGE: Accept the Request object as the first parameter
+public function show(Request $request, Category $category)
+{
+    // The query logic here is for the children, but we'll use $request to potentially filter them.
+    
+    // Start building the query for children
+    $query = $category->children();
+    
+    // --- 1. APPLY SEARCH FILTER to Children ---
+    if ($request->filled('search')) {
+        $query->where('title', 'like', '%' . $request->search . '%');
     }
+
+    // --- 2. APPLY SORTING to Children (using the logic from index) ---
+    $sort = $request->input('sort', 'order_asc'); 
+    
+    if ($sort == 'date_asc') {
+        $query->orderBy('created_at', 'asc');
+    } elseif ($sort == 'date_desc') {
+        $query->orderBy('created_at', 'desc');
+    } else {
+        $query->orderBy('order', 'asc');
+    }
+    
+    $children = $query->get(); // Get the filtered/sorted children
+
+    // We also need top-level categories for the Parent Category Dropdown in the filter form
+    $parentCategories = Category::whereNull('parent_id')->orderBy('order')->get();
+
+    // 💡 PASS $request and $parentCategories to the view
+    return view('superadmin.categories.superadmin_categories_view', 
+        compact('category', 'children', 'request', 'parentCategories')
+    );
+}
 
     public function edit(Category $category)
     {
