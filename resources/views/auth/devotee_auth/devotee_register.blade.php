@@ -114,25 +114,10 @@
         background-color: #dce3ed;
         padding: 8px 12px;
         border-radius: 5px;
-        transition: background-color 0.3s ease;
     }
 
     .back-home:hover {
         background-color: #c5d2e3;
-    }
-
-    .alert {
-        padding: 10px 15px;
-        margin-bottom: 20px;
-        border-radius: 8px;
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-        color: #721c24;
-    }
-
-    .alert ul {
-        margin: 0;
-        padding-left: 20px;
     }
 
     .text-danger {
@@ -147,20 +132,9 @@
     }
 
     @media (max-width: 768px) {
-        .form-row {
-            flex-direction: column;
-            gap: 0;
-        }
-        
-        .registration_card {
-            margin: 20px;
-            padding: 20px 25px;
-        }
-        
-        .back-home {
-            display: block;
-            margin: 5px 0;
-        }
+        .form-row { flex-direction: column; gap: 0; }
+        .registration_card { margin: 20px; padding: 20px 25px; }
+        .back-home { display: block; margin: 5px 0; }
     }
 </style>
 
@@ -168,15 +142,15 @@
     <h2>Devotee Registration</h2>
     
     <div class="back-links">
-        <a href="{{ route('dashboard') }}" class="back-home">← Back to Home</a>
+        <a href="{{ route('dashboard') }}" class="back-home">Back to Home</a>
     </div>
 
-    <form method="POST" action="{{ route('devotee.register.submit') }}">
+    <form wire:submit.prevent="register">
         @csrf
-        
+
         @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
+            <div class="alert" style="background:#f8d7da; border:1px solid #f5c6cb; color:#721c24; padding:10px 15px; border-radius:8px; margin-bottom:20px;">
+                <ul style="margin:0; padding-left:20px;">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -187,105 +161,83 @@
         <div class="form-row">
             <div class="form-group">
                 <label for="username">User Name <span class="required">*</span></label>
-                <input type="text" id="username" name="username" placeholder="Enter username" value="{{ old('username') }}" required>
-                @error('username')
-                    <span class="text-danger">{{ $message }}</span>
-                @enderror
+                <input type="text" wire:model="name" id="username" placeholder="Enter username" required>
+                @error('name') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
 
             <div class="form-group">
                 <label for="phone_number">Phone Number <span class="required">*</span></label>
-                <input type="tel" id="phone_number" name="phone_number" placeholder="Enter phone number" value="{{ old('phone_number') }}" required>
-                @error('phone_number')
-                    <span class="text-danger">{{ $message }}</span>
-                @enderror
+                <input type="tel" wire:model="phone_number" id="phone_number" placeholder="Enter phone number" required>
+                @error('phone_number') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group">
                 <label for="alternate_phone_number">Alternate Phone Number</label>
-                <input type="tel" id="alternate_phone_number" name="alternate_phone_number" placeholder="Enter alternate phone" value="{{ old('alternate_phone_number') }}">
-                @error('alternate_phone_number')
-                    <span class="text-danger">{{ $message }}</span>
-                @enderror
+                <input type="tel" wire:model="alternate_phone_number" id="alternate_phone_number" placeholder="Enter alternate phone">
+                @error('alternate_phone_number') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
 
             <div class="form-group">
                 <label for="gotram">Gotram <span class="required">*</span></label>
-                <input type="text" id="gotram" name="gotram" placeholder="Enter gotram" value="{{ old('gotram') }}" required>
-                @error('gotram')
-                    <span class="text-danger">{{ $message }}</span>
-                @enderror
+                <input type="text" wire:model="gotram" id="gotram" placeholder="Enter gotram" required>
+                @error('gotram') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
         </div>
 
         <div class="form-group full-width">
             <label for="family_details">Family Details</label>
-            <textarea id="family_details" name="family_details" placeholder="Enter family details" rows="3">{{ old('family_details') }}</textarea>
-            @error('family_details')
-                <span class="text-danger">{{ $message }}</span>
-            @enderror
+            <textarea wire:model="family_details" id="family_details" rows="3" placeholder="Enter family details"></textarea>
+            @error('family_details') <span class="text-danger">{{ $message }}</span> @enderror
         </div>
 
         <div class="form-row">
             <div class="form-group">
                 <label for="date_of_birth">Date of Birth</label>
-                <input type="date" id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth') }}">
-                @error('date_of_birth')
-                    <span class="text-danger">{{ $message }}</span>
-                @enderror
+                <input type="date" wire:model="date_of_birth" id="date_of_birth">
+                @error('date_of_birth') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
 
             <div class="form-group">
                 <label for="anniversary">Anniversary</label>
-                <input type="date" id="anniversary" name="anniversary" value="{{ old('anniversary') }}">
-                @error('anniversary')
-                    <span class="text-danger">{{ $message }}</span>
-                @enderror
+                <input type="date" wire:model="anniversary" id="anniversary">
+                @error('anniversary') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
         </div>
 
         <div class="form-group full-width">
             <label for="email">Email ID</label>
-            <input type="email" id="email" name="email" placeholder="Enter email address" value="{{ old('email') }}">
-            @error('email')
-                <span class="text-danger">{{ $message }}</span>
-            @enderror
+            <input type="email" wire:model="email" id="email" placeholder="Enter email address">
+            @error('email') <span class="text-danger">{{ $message }}</span> @enderror
         </div>
 
         <div class="form-group full-width">
             <label for="address">Area / Address</label>
-            <textarea id="address" name="address" placeholder="Enter your address" rows="3">{{ old('address') }}</textarea>
-            @error('address')
-                <span class="text-danger">{{ $message }}</span>
-            @enderror
+            <textarea wire:model="address" id="address" rows="3" placeholder="Enter your address"></textarea>
+            @error('address') <span class="text-danger">{{ $message }}</span> @enderror
         </div>
 
         <div class="form-row">
             <div class="form-group">
-                <label for="password">Password <span class="required">*</span></label>
-                <input type="password" id="password" name="password" placeholder="Enter password" required>
-                @error('password')
-                    <span class="text-danger">{{ $message }}</span>
-                @enderror
-            </div>
+    <label for="password">Password <span class="required">*</span></label>
+    <input type="password" wire:model.live="password" id="password" required>
+    @error('password') <span class="text-danger">{{ $message }}</span> @enderror
+</div>
 
-            <div class="form-group">
-                <label for="password_confirmation">Confirm Password <span class="required">*</span></label>
-                <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Confirm password" required>
-                @error('password_confirmation')
-                    <span class="text-danger">{{ $message }}</span>
-                @enderror
-            </div>
+<div class="form-group">
+    <label for="password_confirmation">Confirm Password <span class="required">*</span></label>
+    <input type="password" wire:model.live="password_confirmation" id="password_confirmation" required>
+    @error('password_confirmation') <span class="text-danger">{{ $message }}</span> @enderror
+</div>
         </div>
 
         <button type="submit" class="btn-register">Register</button>
     </form>
 
     <div class="back-links">
-        <a href="{{ route('devotee.login') }}" class="back-home">← Already a user? Login here</a>
-        <a href="{{ route('home') }}" class="back-home">← Back to Home</a>
+        <a href="{{ route('devotee.login') }}" class="back-home">Already a user? Login here</a>
+        <a href="{{ route('home') }}" class="back-home">Back to Home</a>
     </div>
 </div>
 

@@ -25,7 +25,7 @@ class CategoryController extends Controller
 public function index(Request $request)
 {
     // Fetch all top-level categories to populate the filter dropdown
-    $parentCategories = Category::whereNull('parent_id')->orderBy('order')->get();
+    $parentCategories = Category::whereNull('parent_id')->orderBy('order_column')->get();
 
     // Start building the query
     $query = Category::with('parent');
@@ -62,7 +62,7 @@ public function index(Request $request)
     } elseif ($sort == 'date_desc') {
         $query->orderBy('created_at', 'desc');
     } else {
-        $query->orderBy('order', 'asc');
+        $query->orderBy('order_column', 'asc');
     }
 
     $categories = $query->get();
@@ -131,13 +131,13 @@ public function show(Request $request, Category $category)
     } elseif ($sort == 'date_desc') {
         $query->orderBy('created_at', 'desc');
     } else {
-        $query->orderBy('order', 'asc');
+        $query->orderBy('order_column', 'asc');
     }
     
     $children = $query->get(); // Get the filtered/sorted children
 
     // We also need top-level categories for the Parent Category Dropdown in the filter form
-    $parentCategories = Category::whereNull('parent_id')->orderBy('order')->get();
+    $parentCategories = Category::whereNull('parent_id')->orderBy('order_column')->get();
 
     // 💡 PASS $request and $parentCategories to the view
     return view('superadmin.categories.superadmin_categories_view', 
@@ -147,7 +147,7 @@ public function show(Request $request, Category $category)
 
     public function edit(Category $category)
     {
-        $categories = Category::orderBy('order')->get();
+        $categories = Category::orderBy('order_column')->get();
         return view('superadmin.categories.superadmin_categories_edit', compact('category', 'categories'));
     }
 

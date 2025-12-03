@@ -22,48 +22,53 @@ use App\Http\Controllers\Superadmin\PopupController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+    Route::get('/', function () {
+        return view('welcome');
+    })->name('home');
 
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+    Route::view('dashboard', 'dashboard')
+        ->middleware(['auth', 'verified'])
+        ->name('dashboard');
 
-// Auth and Settings routes for the default user guard
-Route::middleware(['auth'])->group(function () {
-    Route::redirect('settings', 'settings/profile');
-    Route::get('settings/profile', Profile::class)->name('settings.profile');
-    Route::get('settings/password', Password::class)->name('settings.password');
-    Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
-});
+    // Auth and Settings routes for the default user guard
+    Route::middleware(['auth'])->group(function () {
+        Route::redirect('settings', 'settings/profile');
+        Route::get('settings/profile', Profile::class)->name('settings.profile');
+        Route::get('settings/password', Password::class)->name('settings.password');
+        Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
+    });
 
-// Devotee Authentication Routes
-Route::get('/devotee/login', [DevoteeAuthController::class, 'showLoginForm'])->name('devotee.login');
-Route::post('/devotee/login', [DevoteeAuthController::class, 'login'])->name('devotee.login.submit');
-Route::get('/devotee/register', [DevoteeAuthController::class, 'showRegisterForm'])->name('devotee.register');
-Route::post('/devotee/register', [DevoteeAuthController::class, 'register'])->name('devotee.register.submit');
-Route::get('/devotee/devotee_logout', [DevoteeAuthController::class, 'devotee_logout'])->name('devotee.logout');
+    // Devotee Authentication Routes
+    Route::get('/devotee/login', [DevoteeAuthController::class, 'showLoginForm'])->name('devotee.login');
+    Route::post('/devotee/login', [DevoteeAuthController::class, 'login'])->name('devotee.login.submit');
+    Route::get('/devotee/register', [DevoteeAuthController::class, 'showRegisterForm'])->name('devotee.register');
+    Route::post('/devotee/register', [DevoteeAuthController::class, 'register'])->name('devotee.register.submit');
+    Route::get('/devotee/devotee_logout', [DevoteeAuthController::class, 'devotee_logout'])->name('devotee.logout');
 
-// Google Login Routes
-Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
-Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('google.login.callback');
+    // Google Login Routes
+    Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
+    Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('google.login.callback');
 
-// Devotee Authenticated Routes
-Route::middleware(['auth:devotee'])->group(function () {
-    Route::get('/devotee/devotee_dashboard', [DevoteeAuthController::class, 'dashboard'])->name('devotee.dashboard');
-    Route::get('/devotee/devotee_profile', [DevoteeAuthController::class, 'devotee_profile'])->name('devotee.profile');
-    Route::get('/devotee/devotee_bookings', [DevoteeAuthController::class, 'devotee_bookings'])->name('devotee.bookings');
-    Route::get('/devotee/devotee_donations', [DevoteeAuthController::class, 'devotee_donations'])->name('devotee.donations');
-});
+    // Devotee Authenticated Routes
+    Route::middleware(['auth:devotee'])->group(function () {
+        Route::get('/devotee/devotee_dashboard', [DevoteeAuthController::class, 'dashboard'])->name('devotee.dashboard');
+        Route::get('/devotee/devotee_profile', [DevoteeAuthController::class, 'devotee_profile'])->name('devotee.profile');
+        Route::get('/devotee/devotee_bookings', [DevoteeAuthController::class, 'devotee_bookings'])->name('devotee.bookings');
+        Route::get('/devotee/devotee_donations', [DevoteeAuthController::class, 'devotee_donations'])->name('devotee.donations');
+    });
 
-// Superadmin Routes
-Route::middleware(['auth', 'role:superadmin'])->group(function () {
+    //Admin Auth
+    Route::get('/admin/login',[]);
+
+    // Superadmin Routes
+    Route::middleware(['auth', 'role:superadmin'])->group(function () {
     Route::get('/superadmin/dashboard', [superadmin_DashboardController::class, 'index'])->name('superadmin.dashboard');
 
     // Category routes for Superadmin
-    Route::get('/superadmin/categories', [CategoryController::class, 'index'])->name('superadmin.categories.index');
-    Route::get('/superadmin/categories/create', [CategoryController::class, 'create'])->name('superadmin.categories.create');
+    // NEW: Full drag & drop + editor – replaces ALL old category routes
+    Route::get('/superadmin/categories', \App\Livewire\Superadmin\ManageCategories::class)
+        ->name('superadmin.categories')
+        ->middleware(['auth', 'role:superadmin']);
     Route::post('/superadmin/categories', [CategoryController::class, 'store'])->name('superadmin.categories.store');
     Route::get('/superadmin/categories/{category}', [CategoryController::class, 'show'])->name('superadmin.categories.view');
     Route::get('/superadmin/categories/{category}/edit', [CategoryController::class, 'edit'])->name('superadmin.categories.edit');

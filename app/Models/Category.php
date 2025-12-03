@@ -2,41 +2,46 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\EloquentSortable\Sortable;
+use Spatie\EloquentSortable\SortableTrait;
 
-class Category extends Model
+class Category extends Model implements Sortable
 {
-    use HasFactory;
+    use SortableTrait;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = ['title', 'description', 'slug', 'parent_id', 'order','is_enabled','status'];
+    protected $fillable = [
+        'title', 'slug', 'description', 'start_date', 'end_date',
+        'parent_id', 'order_column', 'is_active', 'status'
+    ];
 
-    /**
-     * Get the parent category.
-     */
-    public function parent(): BelongsTo
+    public $sortable = [
+        'order_column_name' => 'order_column',
+        'sort_when_creating' => true,
+    ];
+
+    public function children()
     {
-        return $this->belongsTo(Category::class, 'parent_id');
+        return $this->hasMany(Category::class, 'parent_id')->orderBy('order_column');
     }
 
-    /**
-     * Get the child categories.
-     */
-    public function children(): HasMany
+    // Auto disable when end_date passed
+    public static function boot()
     {
-        return $this->hasMany(Category::class, 'parent_id');
+        parent::boot();
+        static::addGlobalScope(function ($query) {
+            $query->where(function ($q) {
+                $q->whereNull('end_date')->orWhere('end_date', '>=', now()->toDateString());
+            })->orWhere('is_active', true);
+        });
     }
 
-    public function eventPoojas(): HasMany
+    public function scopeActive($query)
     {
-        return $this->hasMany(EventPooja::class);
+        return $query->where('is_active', true)
+                     ->where('status', 'published')
+                     ->where(function ($q) {
+                         $q->whereNull('end_date')->orWhere('end_date', '>=', now());
+                     });
     }
-
 }

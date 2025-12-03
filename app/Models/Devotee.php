@@ -23,6 +23,11 @@ class Devotee extends Model implements AuthenticatableContract
         'email',
         'address',
         'password',
+        'gotram',
+        'date_of_birth',
+        'anniversary',
+        'family_details',
+        'alternative_phone'
     ];
 
     protected $hidden = [

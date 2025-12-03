@@ -41,4 +41,13 @@ class EventPooja extends Model
     {
         return $this->belongsTo(Category::class);
     }
+    public function bookingSlots()
+    {
+        return $this->hasMany(BookingSlot::class);
+    }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
 }
