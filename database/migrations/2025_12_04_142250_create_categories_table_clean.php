@@ -14,13 +14,17 @@ return new class extends Migration {
             $table->text('description')->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
+            
+            // Hierarchy Fields
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->integer('order_column')->default(0);
+            
             $table->boolean('is_active')->default(true);
             $table->enum('status', ['draft', 'published'])->default('draft');
             $table->timestamps();
 
-            $table->foreign('parent_id')->references('id')->on('categories')->onDelete('cascade');
+            // Foreign Key Constraint
+            $table->foreign('parent_id')->references('id')->on('categories')->onDelete('set null');
         });
     }
 

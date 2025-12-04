@@ -67,7 +67,7 @@ use App\Http\Controllers\Superadmin\PopupController;
     // Category routes for Superadmin
     // NEW: Full drag & drop + editor – replaces ALL old category routes
     Route::get('/superadmin/categories', \App\Livewire\Superadmin\ManageCategories::class)
-        ->name('superadmin.categories')
+        ->name('superadmin.categories.index')
         ->middleware(['auth', 'role:superadmin']);
     Route::post('/superadmin/categories', [CategoryController::class, 'store'])->name('superadmin.categories.store');
     Route::get('/superadmin/categories/{category}', [CategoryController::class, 'show'])->name('superadmin.categories.view');

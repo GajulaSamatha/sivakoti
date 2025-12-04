@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('devotees', function (Blueprint $table) {
-            $table->renameColumn("area_address","address");
-            $table->renameColumn("phone","phone_number");
+        Schema::create('contacts', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
         });
-        
     }
 
     /**
@@ -23,8 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('devotees', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('contacts');
     }
 };

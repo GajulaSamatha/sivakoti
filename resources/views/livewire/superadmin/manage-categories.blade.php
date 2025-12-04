@@ -1,156 +1,198 @@
-<div class="p-6 max-w-7xl mx-auto">
+@section('page_title', 'Manage Categories')
 
-    <!-- Header + Add Button -->
-    <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-800">Categories – Drag & Drop</h1>
-        <button wire:click="$set('editId', 'new')"
-                class="ml-auto bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-3 rounded-lg shadow">
-            + Add New Category
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Categories – Drag & Drop</h1>
+        
+        {{-- FIX: Remove Bootstrap toggle attributes. Dispatch event to open modal after setting editId. --}}
+        <button wire:click="$set('editId', 'new'); $dispatch('open-category-modal')"
+                class="btn btn-success shadow-sm">
+            <i class="fas fa-plus"></i> Add New Category
         </button>
     </div>
 
-    <!-- Tree -->
-    <div wire:ignore>
-        <div id="tree" class="space-y-4">
+    {{-- FIX: Re-add wire:ignore to the D&D container. Stops Livewire from destroying SortableJS instances. --}}
+    <div wire:ignore> 
+        <div id="tree" class="list-group mt-4">
             @forelse($categories as $cat)
-                <div class="bg-white rounded-lg shadow-md border p-6 {{ $cat->end_date && $cat->end_date < now() ? 'opacity-60 border-red-300' : 'border-gray-200' }}"
+                {{-- Main Category Card --}}
+                <div class="card mb-3 shadow-sm {{ $cat->end_date && $cat->end_date < now() ? 'opacity-75 border-danger' : 'border-primary' }}"
                      data-id="{{ $cat->id }}">
 
-                    <div class="flex justify-between items-center">
-                        <div class="text-lg font-semibold">
-                            {{ $cat->title }}
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-grip-vertical me-3 text-secondary"></i>
+                            
+                            <h5 class="card-title mb-0">
+                                {{ $cat->title }}
 
-                            @if($cat->end_date && $cat->end_date < now())
-                                <span class="ml-3 text-red-600 font-bold text-sm">[EXPIRED]</span>
-                            @endif
+                                @if($cat->end_date && $cat->end_date < now())
+                                    <span class="badge bg-danger ms-2">EXPIRED</span>
+                                @endif
 
-                            <span class="ml-3 inline-block px-3 py-1 text-xs font-medium rounded-full
-                                {{ $cat->status === 'published' ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-700' }}">
-                                {{ ucfirst($cat->status) }}
-                            </span>
+                                <span class="badge ms-2 
+                                    {{ $cat->status === 'published' ? 'bg-success' : 'bg-secondary' }}">
+                                    {{ ucfirst($cat->status) }}
+                                </span>
+                            </h5>
                         </div>
 
-                        <div class="flex gap-2">
+                        <div class="d-flex gap-2">
+                            {{-- FIX: Rely only on wire:click --}}
                             <button wire:click="edit({{ $cat->id }})"
-                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
+                                    class="btn btn-sm btn-primary">
                                 Edit
                             </button>
                             <button wire:click="delete({{ $cat->id }})"
-                                    onclick="return confirm('Delete this category and all its children?')"
-                                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm">
+                                    onclick="return confirm('Are you sure you want to delete this category and all its children?')"
+                                    class="btn btn-sm btn-danger">
                                 Delete
                             </button>
                         </div>
                     </div>
 
-                    <!-- Children (sub-categories) -->
-                    @if($cat->children->count())
-                        <div class="ml-12 mt-5 space-y-3">
-                            @foreach($cat->children as $child)
-                                <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-blue-500"
-                                     data-id="{{ $child->id }}">
+                    {{-- Children (sub-categories) --}}
+                    {{-- The container must always be present for drop targets --}}
+                    <div class="list-group list-group-flush ms-5 mb-2 children-list" 
+                         data-parent-id="{{ $cat->id }}"> 
+                        
+                        @foreach($cat->children as $child)
+                            <div class="list-group-item bg-light border-start border-4 border-info d-flex justify-content-between align-items-center"
+                                 data-id="{{ $child->id }}">
+                                
+                                <div class="d-flex align-items-center child-handle">
+                                    <i class="fas fa-grip-lines-vertical me-2 text-muted"></i> 
+                                    <i class="fas fa-angle-right me-2 text-info"></i>
                                     {{ $child->title }}
                                 </div>
-                            @endforeach
-                        </div>
-                    @endif
+                                
+                                <div class="d-flex gap-2">
+                                    {{-- FIX: Rely only on wire:click --}}
+                                    <button wire:click="edit({{ $child->id }})"
+                                            class="btn btn-sm btn-outline-primary">
+                                        Edit
+                                    </button>
+                                    <button wire:click="delete({{ $child->id }})"
+                                            onclick="return confirm('Are you sure you want to delete this category?')"
+                                            class="btn btn-sm btn-outline-danger">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             @empty
-                <div class="text-center py-12 text-gray-500">
+                <div class="alert alert-info text-center" role="alert">
                     No categories yet. Click "+ Add New Category" to create one.
                 </div>
             @endforelse
         </div>
     </div>
 
-    <!-- Create / Edit Modal -->
-    @if($editId)
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-2xl">
-
-                <h2 class="text-2xl font-bold mb-6">
-                    {{ $editId === 'new' ? 'Add New Category' : 'Edit Category' }}
-                </h2>
-
-                <div class="space-y-5">
-                    <input type="text"
-                           wire:model.live="title"
-                           placeholder="Category Title *"
-                           class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-
-                    <input type="date"
-                           wire:model.live="start_date"
-                           class="w-full border border-gray-300 rounded-lg px-4 py-3">
-
-                    <input type="date"
-                           wire:model.live="end_date"
-                           class="w-full border border-gray-300 rounded-lg px-4 py-3">
-
-                    <select wire:model.live="status"
-                            class="w-full border border-gray-300 rounded-lg px-4 py-3">
-                        <option value="draft">Draft</option>
-                        <option value="published">Published</option>
-                    </select>
-
-                    <textarea wire:model.live="description"
-                              rows="5"
-                              placeholder="Description (optional)"
-                              class="w-full border border-gray-300 rounded-lg px-4 py-3"></textarea>
-                </div>
-
-                <div class="flex justify-end gap-4 mt-8">
-                    @if($editId === 'new')
-                        <button wire:click="create"
-                                class="bg-green-600 hover:bg-green-700 text-white font-medium px-8 py-3 rounded-lg">
-                            Create Category
-                        </button>
-                    @else
-                        <button wire:click="save"
-                                class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3 rounded-lg">
-                            Save Changes
-                        </button>
-                    @endif
-
-                    <button wire:click="$set('editId', null)"
-                            class="bg-gray-500 hover:bg-gray-600 text-white font-medium px-8 py-3 rounded-lg">
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
+    {{-- Include the modal structure (must be outside wire:ignore) --}}
+    @if($editId || $editId === 'new')
+        @include('livewire.superadmin.category-modal')
     @endif
-
-    <!-- SortableJS -->
+    
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script>
-        document.addEventListener('livewire:init', () => {
-            Sortable.create(document.getElementById('tree'), {
+        // 1. Define the Initialization Function
+        function initializeSortable() {
+            const tree = document.getElementById('tree');
+            if (!tree) return;
+            
+            // 1. Initialize PARENT LIST (#tree)
+            if (tree.sortable) {
+                tree.sortable.destroy(); // Destroy previous instance
+            }
+            tree.sortable = Sortable.create(tree, {
                 animation: 200,
-                handle: '.bg-white',
-                onEnd: function () {
-                    let items = [];
-                    document.querySelectorAll('#tree > div[data-id]').forEach((el, index) => {
-                        let obj = {
-                            value: el.dataset.id,
-                            order: index + 1
-                        };
+                handle: '.card-body',
+                group: 'nested',
+                onEnd: sendUpdatedOrder
+            });
 
-                        let children = el.querySelectorAll(':scope > div > div[data-id]');
-                        if (children.length) {
-                            obj.children = [];
-                            children.forEach((child, i) => {
-                                obj.children.push({
-                                    value: child.dataset.id,
-                                    order: i + 1
-                                });
-                            });
-                        }
-                        items.push(obj);
+            // 2. Initialize NESTED CHILD LISTS (.children-list)
+            document.querySelectorAll('.children-list').forEach(list => {
+                if (list.sortable) {
+                    list.sortable.destroy(); // Destroy previous instance
+                }
+                list.sortable = Sortable.create(list, {
+                    animation: 150,
+                    handle: '.child-handle',
+                    group: {
+                        name: 'nested',
+                        pull: true,
+                        put: true
+                    },
+                    onEnd: sendUpdatedOrder
+                });
+            });
+        }
+
+        // 3. CREATE THE DATA SENDER FUNCTION
+        function sendUpdatedOrder() {
+            let items = [];
+            document.querySelectorAll('#tree > div[data-id]').forEach((el, index) => {
+                let obj = {
+                    value: el.dataset.id,
+                    order: index + 1
+                };
+
+                let children = el.querySelectorAll(':scope > .children-list > div[data-id]'); 
+                if (children.length) {
+                    obj.children = [];
+                    children.forEach((child, i) => {
+                        obj.children.push({
+                            value: child.dataset.id,
+                            order: i + 1
+                        });
                     });
-
-                    @this.call('updateOrder', items);
+                }
+                items.push(obj);
+            });
+            
+            @this.call('updateOrder', items);
+        }
+        
+        // 4. LIVEWIRE HOOKS: Ensure initialization and modal opening happen correctly.
+        
+        document.addEventListener('livewire:initialized', () => {
+            initializeSortable();
+            
+            // 🔑 FIX: Manual listener to open the Bootstrap modal after Livewire updates properties.
+            Livewire.on('open-category-modal', () => {
+                const modalElement = document.getElementById('categoryModal');
+                if (modalElement) {
+                    // Check for existing instance to prevent errors
+                    let modal = bootstrap.Modal.getInstance(modalElement);
+                    if (!modal) {
+                         modal = new bootstrap.Modal(modalElement);
+                    }
+                    modal.show();
                 }
             });
+        });
+        
+        // Re-initialize Sortable after Livewire component updates the DOM.
+        document.addEventListener('livewire:navigated', () => {
+            setTimeout(initializeSortable, 50); 
+        });
+
+        // Use custom event for creation/update success
+        Livewire.on('category-updated', () => {
+             // Hide the modal after save/update
+             const modalElement = document.getElementById('categoryModal');
+             if (modalElement) {
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) {
+                    modal.hide();
+                }
+             }
+             // Re-initialize Sortable after the list updates
+             setTimeout(initializeSortable, 50); 
         });
     </script>
 </div>

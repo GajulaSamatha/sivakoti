@@ -26,7 +26,7 @@ class DevoteeAuthController extends Controller
 
         // Attempt login for devotee guard
         if (Auth::guard('devotee')->attempt([
-            'email'    => $request->admin_email,
+            'email_id'    => $request->admin_email,
             'password' => $request->admin_password
         ])) {
             return redirect()->intended(route('devotee.dashboard'))
@@ -49,28 +49,28 @@ class DevoteeAuthController extends Controller
     {
         // Step 1: Validate the incoming request data
         $validatedData = $request->validate([
-            'username' => 'required|string|max:255',
+            'user_name' => 'required|string|max:255',
             'phone_number' => 'required|string|max:15|unique:devotees,phone_number',
             'alternate_phone_number' => 'nullable|string|max:15',
             'gotram' => 'required|string|max:255',
             'family_details' => 'nullable|string',
             'date_of_birth' => 'nullable|date',
             'anniversary' => 'nullable|date',
-            'email' => 'required|email|unique:devotees,email',
+            'email_id' => 'required|email|unique:devotees,email',
             'address' => 'nullable|string',
             'password' => 'required|string|min:8|confirmed',
         ]);
         
         // Step 2: Create a new Devotee record in the database
         $devotee = Devotee::create([
-            'username' => $validatedData['username'],
+            'user_name' => $validatedData['username'],
             'phone_number' => $validatedData['phone_number'],
             'alternate_phone_number' => $validatedData['alternate_phone_number'],
             'gotram' => $validatedData['gotram'],
             'family_details' => $validatedData['family_details'],
             'date_of_birth' => $validatedData['date_of_birth'],
             'anniversary' => $validatedData['anniversary'],
-            'email' => $validatedData['email'],
+            'email_id' => $validatedData['email'],
             'address' => $validatedData['address'],
             'password' => Hash::make($validatedData['password']), // Hash the password for security
         ]);

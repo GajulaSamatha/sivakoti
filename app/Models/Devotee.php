@@ -13,14 +13,14 @@ class Devotee extends Model implements AuthenticatableContract
     use HasFactory, Notifiable, Authenticatable;
 
     protected $fillable = [
-        'username',
+        'user_name',
         'phone_number',
         'alternate_phone_number',
         'gotram',
         'family_details',
         'date_of_birth',
         'anniversary',
-        'email',
+        'email_id',
         'address',
         'password',
         'gotram',

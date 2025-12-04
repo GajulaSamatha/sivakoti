@@ -49,15 +49,15 @@
         .sidebar-menu li a {
             display: block;
             padding: 15px 20px;
-            color: #fff; /* Ensure white color for contrast */
+            color: #fff;
             text-decoration: none;
             transition: background-color 0.3s;
         }
 
         .sidebar-menu li a:hover,
-        .sidebar-menu li a.active { /* Add active state */
+        .sidebar-menu li a.active {
             background-color: white;
-            color: var(--primary); /* Hover text color */
+            color: var(--primary);
         }
 
         .sidebar-menu i {
@@ -133,15 +133,9 @@
             <li><a href="{{ route('superadmin.contacts.index') }}" class="{{ request()->routeIs('superadmin.contacts.*') ? 'active' : '' }}"><i class="fas fa-envelope"></i> Contact Messages</a></li>
 
             {{-- FUTURE TABS (Based on Requirements Document) --}}
-           {{-- FUTURE TABS (Temporarily Commented Out) --}}
-            {{-- <li><a href="{{ route('superadmin.pages.index') }}" class="{{ request()->routeIs('superadmin.pages.*') ? 'active' : '' }}"><i class="fas fa-file-alt"></i> Pages</a></li>
-            <li><a href="{{ route('superadmin.posts.index') }}" class="{{ request()->routeIs('superadmin.posts.*') ? 'active' : '' }}"><i class="fas fa-newspaper"></i> Posts</a></li>
-            <li><a href="{{ route('superadmin.galleries.index') }}" class="{{ request()->routeIs('superadmin.galleries.*') ? 'active' : '' }}"><i class="fas fa-images"></i> Galleries</a></li>
-            <li><a href="{{ route('superadmin.menus.index') }}" class="{{ request()->routeIs('superadmin.menus.*') ? 'active' : '' }}"><i class="fas fa-bars"></i> Menus</a></li>
-             --}}
             <li><a href="{{ route('superadmin.popups.index') }}" class="{{ request()->routeIs('superadmin.popups.*') ? 'active' : '' }}"><i class="fas fa-external-link-alt"></i> Popups</a></li>
             
-            {{-- USER & ADMIN MANAGEMENT (Temporarily Commented Out) --}}
+            {{-- USER & ADMIN MANAGEMENT --}}
             <li class="nav-item">
                 <a href="{{ route('superadmin.users.index') }}" 
                 class="nav-link {{ request()->routeIs('superadmin.users.*') ? 'active' : '' }}">
@@ -149,19 +143,13 @@
                     <p>User Management</p>
                 </a>
             </li>
-            {{--
-            <li><a href="{{ route('superadmin.admins.index') }}" class="{{ request()->routeIs('superadmin.admins.*') ? 'active' : '' }}"><i class="fas fa-user-cog"></i> Administrators</a></li>
-             --}}
             
-            {{-- SETTINGS & LOGOUT (Temporarily Commented Out) --}}
-            {{-- <li><a href="{{ route('superadmin.settings.index') }}" class="{{ request()->routeIs('superadmin.settings.*') ? 'active' : '' }}"><i class="fas fa-cogs"></i> Settings</a></li> --}}
-            
-            {{-- LOGOUT (This is usually defined and is safe to leave active) --}}
+            {{-- LOGOUT (Placeholder) --}}
             <li>
-                {{--<form method="POST" action="{{ route('superadmin.logout') }}">
+                {{-- <form method="POST" action="{{ route('superadmin.logout') }}">
                     @csrf
                     <button type="submit" class="btn btn-block text-start w-100" style="background: none; color: #fff; padding: 15px 20px;"><i class="fas fa-sign-out-alt"></i> Logout</button>
-                </form>--}}
+                </form> --}}
             </li>
         </ul>
     </div>
@@ -170,11 +158,21 @@
         <div class="header">
             <h1>@yield('page_title')</h1>
         </div>
+        
         {{-- This is where the content from other views is injected --}}
         @yield('content')
-    </div>
+    </div> 
+    {{-- 
+    ################################################
+    ### CRITICAL FIX: SCRIPT LOADING ORDER         ###
+    ################################################
+    --}}
+    
+    {{-- 🔑 1. Load Livewire's core scripts FIRST. This ensures the global 'Livewire' object exists --}}
+    @livewireScripts
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    @stack('scripts')
+    {{-- 🔑 2. Load Bootstrap JS. This ensures 'bootstrap.Modal' is defined --}}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> 
+    
 </body>
 </html>

@@ -29,7 +29,7 @@ class GoogleController extends Controller
             $socialiteUser = Socialite::driver('google')->user();
 
             // 1. PRIMARY CHECK: Find user by EMAIL
-            $findUser = Devotee::where('email', $socialiteUser->email)->first();
+            $findUser = Devotee::where('email_id', $socialiteUser->email)->first();
 
             if ($findUser) {
                 // --- CASE A: EXISTING USER (Login) ---
@@ -53,17 +53,17 @@ class GoogleController extends Controller
 
                 // Ensure username uniqueness in DB by appending a number if needed
                 $count = 1;
-                while (Devotee::where('username', $username)->exists()) {
+                while (Devotee::where('user_name', $username)->exists()) {
                     $username = $baseUsername . $count++;
                 }
 
                 // Create a new record
                 $user = Devotee::create([
                     'name' => $socialiteUser->name,
-                    'email' => $socialiteUser->email,
+                    'email_id' => $socialiteUser->email,
                     'google_id' => $socialiteUser->id,
-                    'username' => $username, 
-                    'password' => bcrypt(rand(100000, 999999)),
+                    'user_name' => $username, 
+                    'password' => Hash::make(Str::random(60)),
                 ]);
 
                 // Log the new user in
@@ -73,8 +73,8 @@ class GoogleController extends Controller
 
         } catch (Exception $e) {
             // Always return to the login page on failure
-            // dd($e->getMessage()); // Keep this commented out unless actively debugging a new error
-            return redirect()->route('devotee.login')->with('error', 'Google login failed. Please try again.');
+            dd($e->getMessage()); // Keep this commented out unless actively debugging a new error
+            //return redirect()->route('devotee.login')->with('error', 'Google login failed. Please try again.');
         }
     }
 }
