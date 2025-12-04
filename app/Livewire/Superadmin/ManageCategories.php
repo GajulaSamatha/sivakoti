@@ -5,10 +5,13 @@ namespace App\Livewire\Superadmin;
 use App\Models\Category;
 use Livewire\Component;
 use Illuminate\Support\Str;
-use Carbon\Carbon; // Ensure Carbon is imported for date handling
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB; // <-- CRITICAL: Import DB facade
+use Illuminate\Support\Facades\Log; // <-- CRITICAL: Import Log facade for error handling
 
 class ManageCategories extends Component
 {
+    // Public properties mapped to form fields
     public $parent_id = null;
     public $parentOptions = [];
     public $categories;
@@ -19,6 +22,16 @@ class ManageCategories extends Component
     public $end_date = '';
     public $status = 'draft';
 
+    // Validation rules
+    protected $rules = [
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'start_date' => 'nullable|date',
+        'end_date' => 'nullable|date|after_or_equal:start_date',
+        'status' => 'required|in:draft,published',
+        'parent_id' => 'nullable|exists:categories,id',
+    ];
+
     public function mount()
     {
         $this->loadCategories();
@@ -26,20 +39,22 @@ class ManageCategories extends Component
         $this->parentOptions = Category::pluck('title', 'id')->toArray(); 
     }
     
+    // -----------------------------------------------------------
+    // CORE FUNCTIONS
+    // -----------------------------------------------------------
 
     public function loadCategories()
     {
-        $this->categories = Category::with('children')
-            ->whereNull('parent_id')
+        // 🔑 FIX: Ensure only one with('children') call and whereNull is correct
+        $this->categories = Category::whereNull('parent_id')
+            ->with('children')
             ->orderBy('order_column')
             ->get();
     }
 
     public function create()
     {
-        $this->validate([
-            'title' => 'required|string|max:255',
-        ]);
+        $this->validate(); // Uses the protected $rules
 
         $slug = Str::slug($this->title);
 
@@ -51,12 +66,13 @@ class ManageCategories extends Component
             'end_date'     => $this->end_date,
             'status'       => $this->status,
             'order_column' => Category::max('order_column') + 1,
-            'is_active'    => true,
-            'parent_id'    => $this->parent_id ?: null, // Use $parent_id from form
+            'is_active'    => is_null($this->end_date) || $this->end_date >= now()->format('Y-m-d'),
+            'parent_id'    => $this->parent_id ?: null,
         ]);
 
         $this->resetForm();
         $this->loadCategories();
+        $this->dispatch('category-updated'); // Event to close modal & refresh SortableJS
     }
 
     public function edit($id)
@@ -65,16 +81,19 @@ class ManageCategories extends Component
         $this->editId = $id;
         $this->title = $cat->title;
         $this->description = $cat->description;
-        $this->start_date = $cat->start_date?->format('Y-m-d');
+        // Format date objects for HTML input (YYYY-MM-DD)
+        $this->start_date = $cat->start_date?->format('Y-m-d'); 
         $this->end_date = $cat->end_date?->format('Y-m-d');
         $this->status = $cat->status;
         $this->parent_id = $cat->parent_id; 
-        $this->editId = $id;
+        
         $this->dispatch('open-category-modal');
     }
 
     public function save()
     {
+        $this->validate(); // Uses the protected $rules
+
         Category::findOrFail($this->editId)->update([
             'title'       => $this->title,
             'description' => $this->description,
@@ -87,41 +106,62 @@ class ManageCategories extends Component
 
         $this->resetForm();
         $this->loadCategories();
+        $this->dispatch('category-updated'); // Event to close modal & refresh SortableJS
     }
 
     public function delete($id)
     {
         Category::findOrFail($id)->delete();
         $this->loadCategories();
+        $this->dispatch('category-order-updated'); // Refresh D&D tree after delete
     }
 
+    /**
+     * Handles the drag-and-drop hierarchy and order update.
+     * This is the function that resolves the UI refresh issue.
+     */
     public function updateOrder($items)
     {
-        // The $items array is passed from the JavaScript, which includes nesting.
-        
-        foreach ($items as $index => $item) {
-            // 1. Update the current (parent) item's order and set parent_id to NULL (as it's top-level)
-            Category::where('id', $item['value'])->update([
-                'parent_id' => null, // Explicitly set top-level items to NULL
-                'order_column' => $index + 1 // Use the array index + 1 for sequence
-            ]);
+        DB::beginTransaction();
+        try {
+            // The $items array is passed from the JavaScript, which includes nesting.
+            
+            foreach ($items as $index => $item) {
+                // 1. Update the current (parent) item's order and set parent_id to NULL
+                Category::where('id', $item['value'])->update([
+                    'parent_id' => null, // 🔑 FIX: Explicitly set top-level items to NULL
+                    'order_column' => $index + 1
+                ]);
 
-            // 2. Check for and process children
-            if (isset($item['children']) && is_array($item['children'])) {
-                
-                // Loop through all children of the current item
-                foreach ($item['children'] as $childIndex => $childItem) {
+                // 2. Check for and process children
+                if (isset($item['children']) && is_array($item['children'])) {
                     
-                    // Update the child item
-                    Category::where('id', $childItem['value'])->update([
-                        'parent_id' => $item['value'], // This sets the parent_id to the parent's ID
-                        'order_column' => $childIndex + 1
-                    ]);
+                    // Loop through all children of the current item
+                    foreach ($item['children'] as $childIndex => $childItem) {
+                        
+                        Category::where('id', $childItem['value'])->update([
+                            'parent_id' => $item['value'], // Sets parent_id to the new parent
+                            'order_column' => $childIndex + 1
+                        ]);
+                    }
                 }
             }
+            
+            DB::commit();
+
+            // 1. RELOAD CATEGORIES: Refresh the Livewire data model with the new hierarchy.
+            $this->loadCategories(); 
+            
+            // 2. DISPATCH: Signal the browser to re-initialize SortableJS on the new HTML.
+            $this->dispatch('category-order-updated');
+            
+            $this->dispatch('success-alert', message: 'Category order updated successfully!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Category Order Update Failed: ' . $e->getMessage());
+            $this->dispatch('error-alert', message: 'Failed to update category order.');
         }
-        // After updating, refresh the categories to re-render the list correctly
-        $this->loadCategories(); 
     }
 
     public function resetForm()
@@ -139,6 +179,6 @@ class ManageCategories extends Component
     {
         return view('livewire.superadmin.manage-categories')
         ->extends('layouts.superadmin_layouts.superadmin_base')
-        ->section('content');;
+        ->section('content');
     }
 }
