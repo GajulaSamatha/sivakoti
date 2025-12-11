@@ -1,86 +1,78 @@
-{{-- This uses the standard Bootstrap 5 Modal structure --}}
-<div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0, 0, 0, 0.5);">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            
-            <div class="modal-header">
-                <h5 class="modal-title">{{ $editId === 'new' ? 'Add New Category' : 'Edit Category' }}</h5>
-                <button type="button" class="btn-close" wire:click="$set('editId', null)"></button>
-            </div>
+{{-- resources/views/livewire/superadmin/category-modal.blade.php --}}
 
-            <div class="modal-body">
-                <form wire:submit="{{ $editId === 'new' ? 'create' : 'save' }}" id="categoryForm">
-                    
-                    {{-- Title Field --}}
+{{-- CRITICAL FIX: wire:ignore.self prevents Livewire from re-rendering the modal's DOM element while it's open, which can cause flicker or prevent it from closing properly. --}}
+<div wire:ignore.self class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            {{-- CRITICAL FIX: The form should call a method that also closes the modal on success (via $dispatch). --}}
+            <form wire:submit.prevent="save"> 
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        {{ $editId === 'new' ? 'Add New Category' : 'Edit Category' }}
+                    </h5>
+                    {{-- CRITICAL FIX: Added data-bs-dismiss to close the visual element --}}
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" wire:click="closeModal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    {{-- Title --}}
                     <div class="mb-3">
-                        <label for="title" class="form-label">Category Title *</label>
-                        <input type="text" wire:model.live="title" id="title" class="form-control @error('title') is-invalid @enderror" placeholder="Category Title">
+                        <label class="form-label">Title <span class="text-danger">*</span></label>
+                        {{-- Changed to .defer for less network traffic while typing --}}
+                        <input type="text" wire:model.defer="title" class="form-control @error('title') is-invalid @enderror" placeholder="e.g. Morning Pooja">
                         @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
-                    <div class="mb-3">
-                        <label for="parent_id" class="form-label">Parent Category (Optional)</label>
-                        <select wire:model.defer="parent_id" class="form-control" id="parent_id">
-                            {{-- Option to select no parent --}}
-                            <option value="">-- No Parent (Top Level) --</option> 
-                            
-                            {{-- Loop through the categories fetched from the component --}}
-                            @foreach($parentOptions as $id => $title)
-                                <option value="{{ $id }}">{{ $title }}</option>
-                            @endforeach
-                        </select>
-                        @error('parent_id') <span class="text-danger">{{ $message }}</span> @enderror
-                    </div>
 
-                    {{-- Existing Title Field --}}
+                    {{-- Description --}}
                     <div class="mb-3">
-                        <label for="title" class="form-label">Title</label>
-                        <input type="text" wire:model.defer="title" class="form-control" id="title" required>
-                        @error('title') <span class="text-danger">{{ $message }}</span> @enderror
-                    </div>
-                    {{-- Description Field --}}
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Description (optional)</label>
-                        <textarea wire:model.live="description" id="description" rows="3" class="form-control"></textarea>
+                        <label class="form-label">Description <small class="text-muted">(optional)</small></label>
+                        <textarea wire:model.defer="description" rows="3" class="form-control" placeholder="Brief description..."></textarea>
                     </div>
                     
-                    {{-- Start Date Field --}}
+                    {{-- CRITICAL ADDITION: Parent Category Field for creation/re-parenting in the form --}}
                     <div class="mb-3">
-                        <label for="start_date" class="form-label">Start Date</label>
-                        <input type="date" wire:model.live="start_date" id="start_date" class="form-control">
+                        <label class="form-label">Parent Category</label>
+                        {{-- The 'allCategories' property must be populated in the PHP component --}}
+                        <select wire:model.defer="parent_id" class="form-select @error('parent_id') is-invalid @enderror">
+                            <option value="">-- No Parent (Top Level) --</option>
+                            @foreach($allCategories as $categoryOption)
+                                {{-- We must prevent an item from being its own parent, which is handled in the PHP component's render() method filter. --}}
+                                <option value="{{ $categoryOption->id }}">{{ $categoryOption->title }}</option>
+                            @endforeach
+                        </select>
+                        @error('parent_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
-                    {{-- End Date Field --}}
-                    <div class="mb-3">
-                        <label for="end_date" class="form-label">End Date</label>
-                        <input type="date" wire:model.live="end_date" id="end_date" class="form-control">
-                    </div>
 
-                    {{-- Status Dropdown --}}
+                    {{-- Status --}}
                     <div class="mb-3">
-                        <label for="status" class="form-label">Status</label>
-                        <select wire:model.live="status" id="status" class="form-select">
-                            <option value="draft">Draft</option>
+                        <label class="form-label">Status</label>
+                        <select wire:model.defer="status" class="form-select">
                             <option value="published">Published</option>
+                            <option value="draft">Draft</option>
                         </select>
                     </div>
 
-                </form>
-            </div>
-            
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" wire:click="$set('editId', null)">Cancel</button>
-                
-                @if($editId === 'new')
-                    <button type="submit" form="categoryForm" class="btn btn-success">
-                        Create Category
-                    </button>
-                @else
-                    <button type="submit" form="categoryForm" class="btn btn-primary">
-                        Save Changes
-                    </button>
-                @endif
-            </div>
+                    @if($editId !== 'new')
+                        <div class="alert alert-info small">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Parent & Order:</strong> Use drag & drop on the list to change nesting and order.
+                        </div>
+                    @endif
 
+                </div>
+
+                <div class="modal-footer">
+                    {{-- CRITICAL FIX: Added data-bs-dismiss and call closeModal for clean state reset --}}
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" wire:click="closeModal">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        {{ $editId === 'new' ? 'Create Category' : 'Save Changes' }}
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

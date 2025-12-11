@@ -1,0 +1,44 @@
+User Guide: How to Drag and Drop Items
+When you have a list of items (like categories) that you can rearrange, you can usually perform the following actions:
+
+1. Reordering Items (Making them Siblings)
+If you want to change the order of items at the same level, you drag an item and drop it between two other items.
+
+How to do it:
+
+Click and hold the item you want to move.
+Drag it up or down.
+As you drag, you should see a placeholder line or a highlighted space appear between the other items.
+Release the mouse button when the placeholder is where you want the item to be.
+Result: The item will now be a "sibling" to the items around it, at the same indentation level.
+
+2. Making an Item a Child
+To make an item a child of another, you need to drag it and drop it onto the item you want to become its parent. This is often indicated by a change in indentation.
+
+How to do it:
+
+Click and hold the item you want to make a child (e.g., "Sub Category 1").
+Drag it slightly to the right and over the item you want to be the parent (e.g., "Main Category").
+The parent item ("Main Category") will often become highlighted, and you might see the item you are dragging become indented.
+Release the mouse button.
+Result: "Sub Category 1" is now a child of "Main Category" and will appear indented underneath it.
+
+3. Making an Item a "Grandchild" (or Deeper)
+The process is the same. To make an item a sub-child, you simply make it a child of an existing child item.
+
+How to do it:
+
+Drag the item you want to move (e.g., "Sub-sub Category").
+Drop it onto the item that should be its parent (e.g., "Sub Category 1").
+Result: The item becomes a child of "Sub Category 1", indented even further.
+
+4. Making a Child Item a Parent (Moving it to the Root/Top Level)
+To move an indented child item back to the top level, you drag it out from under its parent.
+
+How to do it:
+
+Click and hold the child item you want to move.
+Drag it to the left, out from under its parent.
+You will see the placeholder line appear at the top level (with no indentation).
+Release it between other top-level items or at the very top or bottom of the list.
+Result: The item is no longer a child and is now at the same level as the other main items.

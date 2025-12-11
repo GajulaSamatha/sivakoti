@@ -7,6 +7,7 @@ use Laravel\Socialite\Facades\Socialite;
 use App\Models\Devotee;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 use Exception;
 
 class GoogleController extends Controller
@@ -73,8 +74,8 @@ class GoogleController extends Controller
 
         } catch (Exception $e) {
             // Always return to the login page on failure
-            dd($e->getMessage()); // Keep this commented out unless actively debugging a new error
-            //return redirect()->route('devotee.login')->with('error', 'Google login failed. Please try again.');
+            //dd($e->getMessage()); // Keep this commented out unless actively debugging a new error
+            return redirect()->route('devotee.login')->with('error', 'Google login failed. Please try again.');
         }
     }
 }
