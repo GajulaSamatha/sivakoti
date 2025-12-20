@@ -7,6 +7,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class ManageCategories extends Component
 {
@@ -25,18 +26,22 @@ class ManageCategories extends Component
 
     protected function rules()
     {
-        return [
+        $rules = [
             'title_form' => 'required|string|max:255',
             'description' => 'nullable|string',
             'parent_id' => [
                 'nullable', 
                 'integer', 
                 Rule::exists('categories', 'id')->whereNull('deleted_at'),
-                // Prevent selecting the category itself as its parent
-                Rule::notIn([$this->editId === 'new' ? null : $this->editId]),
             ],
             'status' => 'required|in:published,draft',
         ];
+
+        if ($this->editId !== 'new') {
+            $rules['parent_id'][] = Rule::notIn([$this->editId]);
+        }
+
+        return $rules;
     }
 
     // Listens for events dispatched from the view (e.g., the delete button onclick)
@@ -116,6 +121,10 @@ class ManageCategories extends Component
 
     public function save()
     {
+        if (empty($this->parent_id)) {
+            $this->parent_id = null;
+        }
+
         $this->validate();
         
         // Use a transaction to ensure atomic operation
@@ -125,6 +134,7 @@ class ManageCategories extends Component
                 : Category::findOrFail($this->editId);
 
             $category->title = $this->title_form;
+            $category->slug = Str::slug($this->title_form);
             $category->description = $this->description;
             $category->status = $this->status;
             $category->parent_id = $this->parent_id; // Let nested-set handle the rest
@@ -151,22 +161,33 @@ class ManageCategories extends Component
     {
         DB::transaction(function () use ($data) {
             foreach ($data as $item) {
-                Category::where('id', $item['id'])->update([
-                    'parent_id' => $item['parent_id'],
-                    'order_column' => $item['order'],
-                ]);
+                $category = Category::find($item['id']);
+                if ($category) {
+                    $category->parent_id = $item['parent_id'];
+                    $category->order_column = $item['order'];
+                    $category->save(); // Triggers NestedSet updates for _lft and _rgt
+                }
             }
         });
         
         $this->loadCategories();
         session()->flash('success', 'Category order and hierarchy updated!');
     }
+    public function updateCategoryOrder($tree)
+    {
+        // The  is an array of nodes from SortableJS
+        // It's already in the desired hierarchical structure.
+        Category::rebuildTree();
+
+        // Optional: You can dispatch an event to the browser if needed,
+        // but Livewire's default hooks are often sufficient.
+        // ->dispatchBrowserEvent('tree-updated-success');
+    }
 
     public function render()
     {
-        // Use the layout() method to specify the layout and pass data to it.
-        // This correctly populates the @yield('page_title') in the base layout.
-        return view('livewire.superadmin.manage-categories')
-            ->layout('layouts.superadmin_layouts.superadmin_base', ['page_title' => 'Manage Categories']);
+        return view('livewire.manage-categories', [
+            'categories' => $this->categories,
+        ])->layout('layouts.superadmin_layouts.superadmin_base');
     }
 }

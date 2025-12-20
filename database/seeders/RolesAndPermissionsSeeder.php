@@ -18,13 +18,14 @@ class RolesAndPermissionsSeeder extends Seeder
         // Check if the 'superadmin' role already exists to prevent duplicates
         $superadminRole = Role::firstOrCreate(['name' => 'superadmin']);
 
-        // Find the first user and assign the superadmin role
-        $user = User::find(1); // Adjust this if your superadmin user is not the first one
+        // Find the specific user by email
+        $user = User::where('email', 'samathagajula22@gmail.com')->first();
+
         if ($user) {
             $user->assignRole($superadminRole);
-            $this->command->info('Superadmin role created and assigned to User ID: 1');
+            $this->command->info('Superadmin role assigned to samathagajula22@gmail.com');
         } else {
-            $this->command->error('User with ID 1 not found. Please create a user first.');
+            $this->command->error('User samathagajula22@gmail.com not found.');
         }
     }
 }

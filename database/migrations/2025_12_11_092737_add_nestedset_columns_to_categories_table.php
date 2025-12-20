@@ -13,14 +13,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('categories', function (Blueprint $table) {
-            // Manually add the _lft and _rgt columns for the nested set.
-            // We do this manually because the parent_id column already exists.
-            $table->unsignedInteger('_lft')->default(0);
-            $table->unsignedInteger('_rgt')->default(0);
-
-            // Rebuild the tree structure from the parent_id column
-            Category::fixTree();
+            // Add nested set columns if they don't exist
+            if (!Schema::hasColumn('categories', '_lft')) {
+                $table->nestedSet();
+            }
         });
+
+        // Rebuild the tree to populate _lft and _rgt values for existing records.
+        // We check if the model has data before fixing to avoid errors.
+        if (Schema::hasColumn('categories', '_lft') && Category::withoutGlobalScopes()->count() > 0) {
+            Category::fixTree();
+        }
     }
 
     /**
@@ -29,7 +32,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('categories', function (Blueprint $table) {
-            // Manually drop the columns if the migration is rolled back.
             $table->dropNestedSet();
         });
     }
